@@ -14,10 +14,6 @@ public class UserRepository {
     private long id = 0;
 
 
-    public Optional<User> findById(Long id) {
-        return Optional.ofNullable(users.get(id));
-    }
-
     public Collection<User> findAll() {
         return users.values();
     }

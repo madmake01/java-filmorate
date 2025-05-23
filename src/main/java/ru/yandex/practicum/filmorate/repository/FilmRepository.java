@@ -13,10 +13,6 @@ public class FilmRepository {
     private final Map<Long, Film> films = new HashMap<>();
     private long id = 0;
 
-    public Optional<Film> findById(Long id) {
-        return Optional.ofNullable(films.get(id));
-    }
-
     public Collection<Film> findAll() {
         return films.values();
     }
