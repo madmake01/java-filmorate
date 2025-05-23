@@ -10,10 +10,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Constraint(validatedBy = AfterDateValidator.class)
+@Constraint(validatedBy = NotBeforeDateValidator.class)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AfterDate {
+public @interface NotBeforeDate {
     String value();
 
     String message() default "Date must be after {}";

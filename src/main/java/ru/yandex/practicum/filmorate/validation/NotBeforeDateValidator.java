@@ -5,12 +5,12 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
 
-public class AfterDateValidator implements ConstraintValidator<AfterDate, LocalDate> {
+public class NotBeforeDateValidator implements ConstraintValidator<NotBeforeDate, LocalDate> {
 
     private LocalDate threshold;
 
     @Override
-    public void initialize(AfterDate constraintAnnotation) {
+    public void initialize(NotBeforeDate constraintAnnotation) {
         this.threshold = LocalDate.parse(constraintAnnotation.value());
     }
 
