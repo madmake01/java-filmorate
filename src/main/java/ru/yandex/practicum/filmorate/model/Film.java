@@ -19,5 +19,8 @@ public class Film {
     private String name;
     private String description;
     private LocalDate releaseDate;
+
+    @JsonSerialize(using = DurationSerializer.class)
+    @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
 }
