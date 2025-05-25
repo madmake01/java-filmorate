@@ -33,7 +33,7 @@ public class ServiceLogAspect {
             log.trace("Успешно: {}", method);
             return result;
 
-        } catch (Throwable ex) {
+        } catch (RuntimeException ex) {
             log.error("Ошибка в методе {}: {}", method, ex.getMessage(), ex);
             throw ex;
         }
