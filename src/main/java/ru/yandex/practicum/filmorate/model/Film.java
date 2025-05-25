@@ -16,12 +16,13 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
+    public static final String EARLIEST_ALLOWED_RELEASE_DATE = "1895-12-28";
     private Long id;
     @NotBlank
     private String name;
     @Size(max = 200)
     private String description;
-    @NotBeforeDate("1895-12-28")
+    @NotBeforeDate(EARLIEST_ALLOWED_RELEASE_DATE)
     private LocalDate releaseDate;
 
     @NotNull
