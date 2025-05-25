@@ -10,30 +10,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/films")
-public class FilmController {
-    private final FilmService filmService;
+@RequestMapping("/users")
+public class UserController {
+    private final UserService userService;
 
     @GetMapping
-    public Collection<Film> getFilms() {
-        return filmService.findAll();
+    public Collection<User> getUsers() {
+        return userService.findAll();
     }
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film) {
-        return filmService.save(film);
+    public User createUser(@Valid @RequestBody User user) {
+        return userService.save(user);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        return filmService.update(film)
+    public User updateUser(@Valid @RequestBody User user) {
+        return userService.update(user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }
