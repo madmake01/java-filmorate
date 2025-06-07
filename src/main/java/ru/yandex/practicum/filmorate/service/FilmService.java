@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -27,7 +26,8 @@ public class FilmService {
         return filmStorage.persist(film);
     }
 
-    public Optional<Film> update(Film film) {
-        return filmStorage.update(film);
+    public Film update(Film film) {
+        return filmStorage.update(film)
+                .orElseThrow(() -> new EntityNotFoundException("Film with id '%d' not found".formatted(film.getId())));
     }
 }

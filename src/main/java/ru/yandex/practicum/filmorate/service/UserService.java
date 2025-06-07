@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,8 +32,9 @@ public class UserService {
         return userStorage.persist(user);
     }
 
-    public Optional<User> update(User user) {
-        return userStorage.update(user);
+    public User update(User user) {
+        return userStorage.update(user)
+                .orElseThrow(() -> new EntityNotFoundException("User with id '%d' not found".formatted(user.getId())));
     }
 
 }
