@@ -2,9 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -13,6 +13,11 @@ import java.util.Optional;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+
+    public Film getFilm(Long id) {
+        return filmStorage.find(id)
+                .orElseThrow(() -> new EntityNotFoundException("Film with id '%d' not found".formatted(id)));
+    }
 
     public Collection<Film> findAll() {
         return filmStorage.findAll();

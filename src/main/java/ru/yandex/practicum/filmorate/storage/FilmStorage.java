@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface FilmStorage {
+    Optional<Film> find(Long id);
+
     Collection<Film> findAll();
 
     Film persist(Film film);
