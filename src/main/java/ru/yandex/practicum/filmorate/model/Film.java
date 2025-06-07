@@ -13,8 +13,6 @@ import ru.yandex.practicum.filmorate.validation.PositiveDuration;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class Film {
@@ -26,12 +24,9 @@ public class Film {
     private String description;
     @NotBeforeDate(EARLIEST_ALLOWED_RELEASE_DATE)
     private LocalDate releaseDate;
-
     @NotNull
     @PositiveDuration
     @JsonSerialize(using = DurationSerializer.class)
     @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
-
-    private final Set<Like> likes = new HashSet<>();
 }
