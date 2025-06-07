@@ -16,13 +16,14 @@ public record Friendship(Long userIdOne, Long userIdTwo) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Friendship(Long otherUserIdOne, Long otherUserIdTwo))) {
+        if (!(o instanceof Friendship other)) {
             return false;
         }
 
-        return (Objects.equals(userIdOne, otherUserIdOne) && Objects.equals(userIdTwo, otherUserIdTwo)) ||
-                (Objects.equals(userIdOne, otherUserIdTwo) && Objects.equals(userIdTwo, otherUserIdOne));
+        return (Objects.equals(userIdOne, other.userIdOne()) && Objects.equals(userIdTwo, other.userIdTwo())) ||
+                (Objects.equals(userIdOne, other.userIdTwo()) && Objects.equals(userIdTwo, other.userIdOne()));
     }
+
 
     @Override
     public int hashCode() {
