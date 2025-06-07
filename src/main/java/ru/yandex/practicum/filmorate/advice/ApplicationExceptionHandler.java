@@ -30,9 +30,17 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ProblemDetail handleEntityNotFound(EntityNotFoundException ex) {
+    public ProblemDetail handleEntityNotFound() {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problem.setTitle("Requested entity not found");
+        return problem;
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ProblemDetail handleException() {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problem.setTitle("Internal server error");
         return problem;
     }
 }
