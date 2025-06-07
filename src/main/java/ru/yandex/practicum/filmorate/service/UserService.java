@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -13,10 +14,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final UserRepository userRepository;
+    private final UserStorage userStorage;
 
     public Collection<User> findAll() {
-        return userRepository.findAll();
+        return userStorage.findAll();
     }
 
     public User save(User user) {
@@ -24,10 +25,10 @@ public class UserService {
             log.debug("User {} name is null, using login instead ", user);
             user.setName(user.getLogin());
         }
-        return userRepository.persist(user);
+        return userStorage.persist(user);
     }
 
     public Optional<User> update(User user) {
-        return userRepository.update(user);
+        return userStorage.update(user);
     }
 }
