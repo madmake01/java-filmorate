@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.validation.PositiveDuration;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -30,4 +31,6 @@ public class Film {
     @JsonSerialize(using = DurationSerializer.class)
     @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
+
+    private final Set<Like> likes;
 }
