@@ -23,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+    public static final String DEFAULT_FILM_LIST_SIZE = "10";
     private final FilmService filmService;
 
     @GetMapping("/{id}")
@@ -57,7 +58,7 @@ public class FilmController {
 
     @Validated
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") int amount) {
+    public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = DEFAULT_FILM_LIST_SIZE) int amount) {
         return filmService.findMostLikedFilms(amount);
     }
 }
