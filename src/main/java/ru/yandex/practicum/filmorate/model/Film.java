@@ -24,7 +24,6 @@ public class Film {
     private String description;
     @NotBeforeDate(EARLIEST_ALLOWED_RELEASE_DATE)
     private LocalDate releaseDate;
-
     @NotNull
     @PositiveDuration
     @JsonSerialize(using = DurationSerializer.class)
