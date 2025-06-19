@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 public @interface NotBeforeDate {
     String value();
 
-    String message() default "Date must be after {}";
+    String message() default "Date must be after {value}";
 
     Class<?>[] groups() default {};
 
