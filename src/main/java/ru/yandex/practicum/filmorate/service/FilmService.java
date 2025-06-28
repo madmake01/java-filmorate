@@ -2,11 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDbStorage;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -19,6 +22,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikeStorage likeStorage;
+    private final FilmGenreDbStorage filmGenreDbStorage;
 
     public Film getFilm(Long id) {
         return filmStorage.find(id)
@@ -29,13 +33,27 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
+    @Transactional
     public Film save(Film film) {
-        return filmStorage.persist(film);
+        Film savedFilm = filmStorage.persist(film);
+        List<Genre> genres = film.getGenres();
+        if (genres != null && !genres.isEmpty()) {
+            filmGenreDbStorage.saveFilmGenres(savedFilm.getId(), genres);
+        }
+        return savedFilm;
     }
 
+    @Transactional
     public Film update(Film film) {
-        return filmStorage.update(film)
+        Film updatedFilm = filmStorage.update(film)
                 .orElseThrow(() -> new EntityNotFoundException("Film with id '%d' not found".formatted(film.getId())));
+
+        filmGenreDbStorage.deleteFilmGenresByFilmId(updatedFilm.getId());
+        List<Genre> genres = film.getGenres();
+        if (genres != null && !genres.isEmpty()) {
+            filmGenreDbStorage.saveFilmGenres(updatedFilm.getId(), genres);
+        }
+        return updatedFilm;
     }
 
     public void addLike(Long userId, Long filmId) {
