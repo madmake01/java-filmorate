@@ -38,7 +38,6 @@ public class FilmService {
                 .orElseThrow(() -> new EntityNotFoundException("Film with id '%d' not found".formatted(film.getId())));
     }
 
-
     public void addLike(Long userId, Long filmId) {
         validateUserAndFilmExistence(userId, filmId);
         likeStorage.addLike(new Like(userId, filmId));
