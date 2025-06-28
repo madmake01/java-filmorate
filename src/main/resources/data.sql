@@ -1,6 +1,3 @@
-MERGE INTO friendship_statuses (name) KEY (name) VALUES ('подана');
-MERGE INTO friendship_statuses (name) KEY (name) VALUES ('принято');
-
 MERGE INTO genres (genre_id, name) KEY (genre_id) VALUES (1, 'Комедия');
 MERGE INTO genres (genre_id, name) KEY (genre_id) VALUES (2, 'Драма');
 MERGE INTO genres (genre_id, name) KEY (genre_id) VALUES (3, 'Мультфильм');
