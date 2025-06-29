@@ -30,11 +30,6 @@ public final class FilmSql {
             WHERE film_id = ?;
             """;
 
-    public static final String DELETE_FILM_GENRES_SQL =
-            "DELETE FROM film_genres WHERE film_id = ?";
-
-    public static final String INSERT_FILM_GENRE_SQL =
-            "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
     public static final String INSERT_FILM = """
             INSERT INTO films (name, description, release_date, duration, rating_id)
             VALUES (?, ?, ?, ?, ?)

@@ -15,27 +15,25 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
 
     @Override
     public Film extractData(ResultSet rs) throws SQLException {
-        if (!rs.next()) {
-            return null;
-        }
-        return mapFilmWithGenres(rs);
-    }
-
-    private Film mapFilmWithGenres(ResultSet rs) throws SQLException {
-        Film film = FilmMappingUtil.mapFilm(rs);
-        film.setRating(FilmMappingUtil.mapRating(rs));
-        film.setGenres(collectGenres(rs));
-        return film;
-    }
-
-    private List<Genre> collectGenres(ResultSet rs) throws SQLException {
+        Film film = null;
         List<Genre> genres = new ArrayList<>();
-        do {
+
+        while (rs.next()) {
+            if (film == null) {
+                film = FilmMappingUtil.mapFilm(rs);
+                film.setRating(FilmMappingUtil.mapRating(rs));
+            }
+
             Genre genre = FilmMappingUtil.mapGenre(rs);
             if (genre != null) {
                 genres.add(genre);
             }
-        } while (rs.next());
-        return genres;
+        }
+
+        if (film != null) {
+            film.setGenres(genres);
+        }
+
+        return film;
     }
 }

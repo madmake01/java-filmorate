@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.sql.FilmGenreSql;
 
 import java.util.List;
 
@@ -19,13 +20,10 @@ public class FilmGenreDbStorage {
                 .map(g -> new Object[]{filmId, g})
                 .toList();
 
-        jdbcTemplate.batchUpdate("INSERT INTO film_genres(film_id, genre_id) VALUES (?, ?)", params);
+        jdbcTemplate.batchUpdate(FilmGenreSql.INSERT_FILM_GENRES, params);
     }
 
     public void deleteFilmGenresByFilmId(Long filmId) {
-        jdbcTemplate.update(
-                "DELETE FROM film_genres WHERE film_id = ?",
-                filmId
-        );
+        jdbcTemplate.update(FilmGenreSql.DELETE_FILM_GENRES_BY_FILM_ID, filmId);
     }
 }
