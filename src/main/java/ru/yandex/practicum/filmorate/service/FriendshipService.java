@@ -14,14 +14,12 @@ import java.util.List;
 public class FriendshipService {
     private final FriendshipStorage friendshipStorage;
     private final UserService userService;
-    private final ConstraintExceptionHandler constraintExceptionHandler;
 
     @Transactional
     public void addFriend(Long ownerId, Long friendId) {
-        constraintExceptionHandler.handleForeignKeyViolation(() -> {
-            friendshipStorage.persist(new Friendship(ownerId, friendId));
-            return null;
-        }, "One or both users do not exist.");
+        userService.getUser(ownerId);
+        userService.getUser(friendId);
+        friendshipStorage.persist(new Friendship(ownerId, friendId));
     }
 
     @Transactional
@@ -38,6 +36,9 @@ public class FriendshipService {
     }
 
     public List<User> getCommonFriends(Long firstUserId, Long secondUserId) {
+        userService.getUser(firstUserId);
+        userService.getUser(secondUserId);
         return friendshipStorage.findCommonFriends(firstUserId, secondUserId);
     }
 }
+
