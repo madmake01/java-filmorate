@@ -1,25 +1,23 @@
 package ru.yandex.practicum.filmorate.storage.sql;
 
-public final class FriendshipSql {
-    private FriendshipSql() {
-    }
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class FriendshipSql {
     public static final String INSERT = """
                 INSERT INTO friendships(requester_user_id, addressee_user_id)
                 VALUES (?, ?)
             """;
-
     public static final String DELETE = """
                 DELETE FROM friendships
                 WHERE requester_user_id = ? AND addressee_user_id = ?
             """;
-
     public static final String SELECT_FRIEND_IDS = """
                 SELECT addressee_user_id
                 FROM friendships
                 WHERE requester_user_id = ?
             """;
-
     public static final String SELECT_COMMON_FRIENDS = """
                 SELECT u.user_id, u.email, u.login, u.name, u.birthday
                 FROM friendships f1
@@ -27,7 +25,6 @@ public final class FriendshipSql {
                 JOIN users u ON u.user_id = f1.addressee_user_id
                 WHERE f1.requester_user_id = ? AND f2.requester_user_id = ?
             """;
-
     public static final String SELECT_FRIENDS = """
                 SELECT u.user_id, u.email, u.login, u.name, u.birthday
                 FROM friendships f
