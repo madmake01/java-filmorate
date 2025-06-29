@@ -27,7 +27,6 @@ class UserValidationTest {
     private static Validator validator;
     private User user;
 
-
     @BeforeAll
     void setupValidator() {
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
