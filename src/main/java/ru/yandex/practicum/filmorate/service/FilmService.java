@@ -6,23 +6,18 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDbStorage;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserService userService;
-    private final LikeStorage likeStorage;
     private final FilmGenreDbStorage filmGenreDbStorage;
+    private final ConstraintExceptionHandler constraintExceptionHandler;
 
     public Film getFilm(Long id) {
         return filmStorage.find(id)
@@ -35,47 +30,28 @@ public class FilmService {
 
     @Transactional
     public Film save(Film film) {
-        Film savedFilm = filmStorage.persist(film);
-        List<Genre> genres = film.getGenres();
-        if (genres != null && !genres.isEmpty()) {
-            filmGenreDbStorage.saveFilmGenres(savedFilm.getId(), genres);
-        }
-        return savedFilm;
+        return constraintExceptionHandler.handleForeignKeyViolation(() -> {
+            Film savedFilm = filmStorage.persist(film);
+            List<Genre> genres = film.getGenres();
+            if (genres != null && !genres.isEmpty()) {
+                filmGenreDbStorage.saveFilmGenres(savedFilm.getId(), genres);
+            }
+            return savedFilm;
+        }, "Referenced entity does not exist.");
     }
 
     @Transactional
     public Film update(Film film) {
-        Film updatedFilm = filmStorage.update(film)
-                .orElseThrow(() -> new EntityNotFoundException("Film with id '%d' not found".formatted(film.getId())));
+        return constraintExceptionHandler.handleForeignKeyViolation(() -> {
+            Film updatedFilm = filmStorage.update(film)
+                    .orElseThrow(() -> new EntityNotFoundException("Film with id '%d' not found".formatted(film.getId())));
 
-        filmGenreDbStorage.deleteFilmGenresByFilmId(updatedFilm.getId());
-        List<Genre> genres = film.getGenres();
-        if (genres != null && !genres.isEmpty()) {
-            filmGenreDbStorage.saveFilmGenres(updatedFilm.getId(), genres);
-        }
-        return updatedFilm;
-    }
-
-    public void addLike(Long userId, Long filmId) {
-        validateUserAndFilmExistence(userId, filmId);
-        likeStorage.addLike(new Like(userId, filmId));
-    }
-
-    public void removeLike(Long userId, Long filmId) {
-        validateUserAndFilmExistence(userId, filmId);
-        likeStorage.removeLike(new Like(userId, filmId));
-    }
-
-    public List<Film> findMostLikedFilms(int amount) {
-        return likeStorage.getLikeCountsByFilmId().entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(amount)
-                .map(entry -> getFilm(entry.getKey()))
-                .toList();
-    }
-
-    private void validateUserAndFilmExistence(Long userId, Long filmId) {
-        userService.getUser(userId);
-        getFilm(filmId);
+            filmGenreDbStorage.deleteFilmGenresByFilmId(updatedFilm.getId());
+            List<Genre> genres = film.getGenres();
+            if (genres != null && !genres.isEmpty()) {
+                filmGenreDbStorage.saveFilmGenres(updatedFilm.getId(), genres);
+            }
+            return updatedFilm;
+        }, "Referenced entity does not exist.");
     }
 }
