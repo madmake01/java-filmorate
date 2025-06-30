@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -40,7 +39,7 @@ class FilmValidationTest {
         film.setName("Inception");
         film.setDescription("A dream within a dream");
         film.setReleaseDate(LocalDate.of(2010, 7, 16));
-        film.setDuration(Duration.ofMinutes(148));
+        film.setDuration(148);
     }
 
     private Set<ConstraintViolation<Film>> validate(Film film) {
@@ -100,7 +99,7 @@ class FilmValidationTest {
 
     @ParameterizedTest
     @MethodSource("invalidDurations")
-    void shouldFailOnInvalidDuration(Duration duration) {
+    void shouldFailOnInvalidDuration(Integer duration) {
         film.setDuration(duration);
 
         boolean hasViolation = validate(film).stream()
@@ -109,7 +108,7 @@ class FilmValidationTest {
         assertThat(hasViolation).isTrue();
     }
 
-    private Stream<Duration> invalidDurations() {
-        return Stream.of(Duration.ZERO, Duration.ofMinutes(-1), null);
+    private Stream<Integer> invalidDurations() {
+        return Stream.of(0, -1, null);
     }
 }

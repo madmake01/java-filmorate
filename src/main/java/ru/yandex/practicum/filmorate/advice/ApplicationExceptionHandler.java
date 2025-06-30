@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 @RestControllerAdvice
 public class ApplicationExceptionHandler {
 
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleValidationException(MethodArgumentNotValidException ex) {
@@ -26,7 +25,6 @@ public class ApplicationExceptionHandler {
                 .toList());
         return problem;
     }
-
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
