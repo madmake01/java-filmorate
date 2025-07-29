@@ -18,9 +18,6 @@ public class ReviewService {
     private final UserService    userService;
     private final FilmService    filmService;
 
-    /**
-     * Добавляет новый отзыв. Проверяет, что пользователь и фильм существуют.
-     */
     public Review addReview(Review review) {
         userService.getUser(review.getUserId());
         filmService.getFilm(review.getFilmId());
@@ -28,9 +25,6 @@ public class ReviewService {
         return reviewStorage.addReview(review);
     }
 
-    /**
-     * Обновляет существующий отзыв. Проверяет, что отзыв, пользователь и фильм существуют.
-     */
     public Review updateReview(Review review) {
         reviewStorage.getReviewById(review.getReviewId())
                 .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден: " + review.getReviewId()));
@@ -39,26 +33,17 @@ public class ReviewService {
         return reviewStorage.updateReview(review);
     }
 
-    /**
-     * Удаляет отзыв по идентификатору.
-     */
     public void deleteReview(Long reviewId) {
         reviewStorage.getReviewById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден: " + reviewId));
         reviewStorage.deleteReview(reviewId);
     }
 
-    /**
-     * Возвращает отзыв по идентификатору.
-     */
     public Review getReview(Long reviewId) {
         return reviewStorage.getReviewById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден: " + reviewId));
     }
 
-    /**
-     * Возвращает список отзывов. Если передан filmId > 0, возвращает отзывы по фильму, иначе все.
-     */
     public List<Review> getReviews(Long filmId, int count) {
         if (filmId != null && filmId > 0) {
             filmService.getFilm(filmId);
@@ -67,9 +52,6 @@ public class ReviewService {
         return reviewStorage.getAllReviews(count);
     }
 
-    /**
-     * Добавляет лайк отзыву и возвращает обновленный отзыв.
-     */
     public Review addLike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
@@ -77,9 +59,6 @@ public class ReviewService {
         return getReview(reviewId);
     }
 
-    /**
-     * Убирает лайк от отзыва и возвращает обновленный отзыв.
-     */
     public Review removeLike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
@@ -87,9 +66,6 @@ public class ReviewService {
         return getReview(reviewId);
     }
 
-    /**
-     * Добавляет дизлайк отзыву и возвращает обновленный отзыв.
-     */
     public Review addDislike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
@@ -97,9 +73,6 @@ public class ReviewService {
         return getReview(reviewId);
     }
 
-    /**
-     * Убирает дизлайк от отзыва и возвращает обновленный отзыв.
-     */
     public Review removeDislike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
