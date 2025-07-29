@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.feedevent.EventType;
 import ru.yandex.practicum.filmorate.model.feedevent.FeedEvent;
@@ -29,6 +30,7 @@ class FeedEventServiceTest {
     private final FriendshipService friendshipService;
     private final FilmService filmService;
     private final LikeService likeService;
+    private final ReviewService reviewService;
 
     private User makeUser(String name) {
         User user = new User();
@@ -49,6 +51,10 @@ class FeedEventServiceTest {
         rating.setId(1L);
         film.setRating(rating);
         return film;
+    }
+
+    private Review makeReview(String content, boolean positive, Long userId, Long filmId) {
+        return new Review(null, content, positive, userId, filmId, 0);
     }
 
     @Test
@@ -126,4 +132,65 @@ class FeedEventServiceTest {
         );
         assertTrue(removeFound, "Expected LIKE REMOVE event not found in user feed");
     }
+
+    @Test
+    void shouldAddReviewEventToFeed() {
+        User user = userService.save(makeUser("user"));
+        Film film = filmService.save(makeFilm("film"));
+        Review review = makeReview("Great movie!", true, user.getId(), film.getId());
+
+        Review savedReview = reviewService.addReview(review);
+
+        List<FeedEvent> events = eventService.getUserFeedEvents(user.getId());
+        assertFalse(events.isEmpty(), "Feed should not be empty after adding a review");
+        boolean found = events.stream().anyMatch(event ->
+                event.getEventType() == EventType.REVIEW &&
+                        event.getOperation() == Operation.ADD &&
+                        Objects.equals(event.getUserId(), user.getId()) &&
+                        Objects.equals(event.getEntityId(), savedReview.getReviewId())
+        );
+        assertTrue(found, "Expected REVIEW ADD event not found in user feed");
+    }
+
+    @Test
+    void shouldUpdateReviewEventInFeed() {
+        User user = userService.save(makeUser("user"));
+        Film film = filmService.save(makeFilm("film"));
+        Review review = makeReview("Nice", true, user.getId(), film.getId());
+        Review saved = reviewService.addReview(review);
+
+        saved.setContent("Updated content");
+        Review updated = reviewService.updateReview(saved);
+
+        List<FeedEvent> events = eventService.getUserFeedEvents(user.getId());
+        boolean found = events.stream().anyMatch(event ->
+                event.getEventType() == EventType.REVIEW &&
+                        event.getOperation() == Operation.UPDATE &&
+                        Objects.equals(event.getUserId(), user.getId()) &&
+                        Objects.equals(event.getEntityId(), updated.getReviewId())
+        );
+        assertTrue(found, "Expected REVIEW UPDATE event not found in user feed");
+    }
+
+    @Test
+    void shouldRemoveReviewEventInFeed() {
+        User user = userService.save(makeUser("user"));
+        Film film = filmService.save(makeFilm("film"));
+        Review review = makeReview("Nice", true, user.getId(), film.getId());
+        Review saved = reviewService.addReview(review);
+        List<FeedEvent> eventsBefore = eventService.getUserFeedEvents(user.getId());
+
+        reviewService.deleteReview(saved.getReviewId());
+
+        List<FeedEvent> eventsAfter = eventService.getUserFeedEvents(user.getId());
+        assertEquals(eventsBefore.size() + 1, eventsAfter.size(), "Feed size should increase by 1 after deleting review");
+        boolean found = eventsAfter.stream().anyMatch(event ->
+                event.getEventType() == EventType.REVIEW &&
+                        event.getOperation() == Operation.REMOVE &&
+                        Objects.equals(event.getUserId(), user.getId()) &&
+                        Objects.equals(event.getEntityId(), saved.getReviewId())
+        );
+        assertTrue(found, "Expected REVIEW REMOVE event not found in user feed");
+    }
+
 }
