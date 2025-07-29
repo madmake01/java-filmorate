@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -22,8 +23,10 @@ public class Review {
     @NotBlank(message = "content: must not be blank")
     private String content;
 
-    /** Положительный ли отзыв */
-    private boolean positive;
+    /** Положительный ли отзыв (true=положительный; false=негативный) */
+    @JsonProperty("isPositive")
+    @NotNull(message = "isPositive: must not be null")
+    private Boolean positive;
 
     /** Автор (юзер) */
     @NotNull(message = "userId: must not be null")

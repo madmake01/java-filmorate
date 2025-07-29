@@ -9,11 +9,13 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация ReviewStorage на основе JdbcTemplate.
+ */
 @Repository
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -22,11 +24,11 @@ public class ReviewDbStorage implements ReviewStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Review> reviewRowMapper = (ResultSet rs, int rowNum) -> {
+    // RowMapper для преобразования строки ResultSet в объект Review
+    private final RowMapper<Review> reviewRowMapper = (rs, rowNum) -> {
         Review review = new Review();
         review.setReviewId(rs.getLong("review_id"));
         review.setContent(rs.getString("content"));
-        // теперь setter называется setPositive
         review.setPositive(rs.getBoolean("is_positive"));
         review.setUserId(rs.getLong("user_id"));
         review.setFilmId(rs.getLong("film_id"));
@@ -36,20 +38,22 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review addReview(Review review) {
-        String sql = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful) VALUES (?, ?, ?, ?, 0)";
+        String sql = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful) " +
+                "VALUES (?, ?, ?, ?, 0)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, review.getContent());
-            ps.setBoolean(2, review.isPositive());
+            ps.setBoolean(2, review.getPositive());
             ps.setLong(3, review.getUserId());
             ps.setLong(4, review.getFilmId());
             return ps;
         }, keyHolder);
 
-        Long id = keyHolder.getKey().longValue();
+        long id = keyHolder.getKey().longValue();
         return getReviewById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден после вставки: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Отзыв не найден после вставки: " + id));
     }
 
     @Override
@@ -57,13 +61,14 @@ public class ReviewDbStorage implements ReviewStorage {
         String sql = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
         int updated = jdbcTemplate.update(sql,
                 review.getContent(),
-                review.isPositive(),
+                review.getPositive(),
                 review.getReviewId());
         if (updated == 0) {
             throw new EntityNotFoundException("Отзыв не найден: " + review.getReviewId());
         }
         return getReviewById(review.getReviewId())
-                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден после обновления: " + review.getReviewId()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Отзыв не найден после обновления: " + review.getReviewId()));
     }
 
     @Override
@@ -85,21 +90,20 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId, int count) {
-        return jdbcTemplate.query(
-                "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?",
-                reviewRowMapper, filmId, count);
+        String sql = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
+        return jdbcTemplate.query(sql, reviewRowMapper, filmId, count);
     }
 
     @Override
     public List<Review> getAllReviews(int count) {
-        return jdbcTemplate.query(
-                "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?",
-                reviewRowMapper, count);
+        String sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
+        return jdbcTemplate.query(sql, reviewRowMapper, count);
     }
 
     @Override
     public void addLike(long reviewId, long userId) {
-        jdbcTemplate.update("INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, TRUE)",
+        jdbcTemplate.update(
+                "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, TRUE)",
                 reviewId, userId);
         jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
     }
@@ -116,7 +120,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addDislike(long reviewId, long userId) {
-        jdbcTemplate.update("INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, FALSE)",
+        jdbcTemplate.update(
+                "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, FALSE)",
                 reviewId, userId);
         jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
     }

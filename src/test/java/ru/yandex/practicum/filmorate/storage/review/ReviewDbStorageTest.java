@@ -64,7 +64,7 @@ class ReviewDbStorageTest {
         assertThat(fromDb).isPresent();
         Review loaded = fromDb.get();
         assertThat(loaded.getContent()).isEqualTo("Отличный фильм!");
-        assertThat(loaded.isPositive()).isTrue();
+        assertThat(loaded.getPositive()).isTrue();
         assertThat(loaded.getUseful()).isZero();
     }
 
@@ -76,7 +76,7 @@ class ReviewDbStorageTest {
 
         Review updated = reviewStorage.updateReview(created);
         assertThat(updated.getContent()).isEqualTo("Если честно, так себе");
-        assertThat(updated.isPositive()).isFalse();
+        assertThat(updated.getPositive()).isFalse();
     }
 
     @Test
@@ -129,6 +129,6 @@ class ReviewDbStorageTest {
 
         // И оба относятся к filmId=1
         List<Review> byFilm = reviewStorage.getReviewsByFilmId(1L, 5);
-        assertThat(byFilm).allMatch(r -> r.getFilmId() == 1L);
+        assertThat(byFilm).allMatch(r -> r.getFilmId().equals(1L));
     }
 }
