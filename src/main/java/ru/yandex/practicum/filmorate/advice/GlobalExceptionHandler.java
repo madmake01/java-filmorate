@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.advice;
 
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpHeaders;
@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
@@ -18,11 +18,14 @@ import ru.yandex.practicum.filmorate.model.ApiError;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@ControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+/**
+ * Объединённый обработчик всех исключений проекта.
+ */
+@RestControllerAdvice(basePackages = "ru.yandex.practicum.filmorate")
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
-     * Общая точка входа для всех внутренних ошибок Spring MVC.
+     * Точка входа для всех внутренних ошибок Spring MVC.
      */
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
@@ -34,13 +37,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         ApiError apiError = new ApiError(statusCode.value(), ex.getMessage());
         return ResponseEntity
-                .status(statusCode)
+                .status(statusCode.value())
                 .headers(headers)
                 .body(apiError);
     }
 
     /**
-     * Обработка ошибок валидации @Valid в контроллерах.
+     * Валидация @Valid в контроллерах.
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -67,7 +70,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Обработка некорректного JSON в теле запроса.
+     * Некорректный JSON в теле запроса.
      */
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -88,7 +91,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Обработка BindException (например, при ошибках биндинга форм).
+     * Ошибки биндинга (BindException).
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ApiError> handleBindException(BindException ex) {
@@ -109,7 +112,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Сервис выбросил EntityNotFoundException → 404.
+     * Entity not found → 404.
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleEntityNotFound(EntityNotFoundException ex) {
