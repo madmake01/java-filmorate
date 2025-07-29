@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.util.Objects;
 
 /**
@@ -12,26 +11,36 @@ import java.util.Objects;
 public class Review {
     // Уникальный идентификатор отзыва
     private long reviewId;
-    // Текст отзыва (обязателен, не пустой, не более 500 символов)
+
+    // Текст отзыва
     @NotBlank(message = "content: must not be blank")
-    @Size(max = 500, message = "content: size must be between 1 and 500")
     private String content;
-    // Тип отзыва: true — положительный, false — негативный (обязательно)
+
+    // Тип отзыва: true - положительный, false - негативный
     @NotNull(message = "isPositive: must not be null")
-    @JsonProperty("isPositive")
     private Boolean isPositive;
+
     // Идентификатор пользователя, добавившего отзыв
-    private long userId;
+    @NotNull(message = "userId: must not be null")
+    private Long userId;
+
     // Идентификатор фильма, к которому привязан отзыв
-    private long filmId;
-    // Рейтинг полезности (лайки — дизлайки)
+    @NotNull(message = "filmId: must not be null")
+    private Long filmId;
+
+    // Рейтинг полезности (лайки - дизлайки)
     private int useful;
 
     public Review() {
         // Конструктор по умолчанию
     }
 
-    public Review(long reviewId, String content, Boolean isPositive, long userId, long filmId, int useful) {
+    public Review(long reviewId,
+                  String content,
+                  Boolean isPositive,
+                  Long userId,
+                  Long filmId,
+                  int useful) {
         this.reviewId = reviewId;
         this.content = content;
         this.isPositive = isPositive;
@@ -64,24 +73,27 @@ public class Review {
         return isPositive;
     }
 
+    /**
+     * Сеттер для Jackson, чтобы обязательно требовать поле isPositive в JSON
+     */
     @JsonProperty("isPositive")
     public void setPositive(Boolean positive) {
-        isPositive = positive;
+        this.isPositive = positive;
     }
 
-    public long getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public long getFilmId() {
+    public Long getFilmId() {
         return filmId;
     }
 
-    public void setFilmId(long filmId) {
+    public void setFilmId(Long filmId) {
         this.filmId = filmId;
     }
 
@@ -104,8 +116,8 @@ public class Review {
         Review review = (Review) o;
         return reviewId == review.reviewId &&
                 Objects.equals(isPositive, review.isPositive) &&
-                userId == review.userId &&
-                filmId == review.filmId &&
+                userId.equals(review.userId) &&
+                filmId.equals(review.filmId) &&
                 useful == review.useful &&
                 Objects.equals(content, review.content);
     }

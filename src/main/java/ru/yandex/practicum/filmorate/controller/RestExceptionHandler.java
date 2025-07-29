@@ -5,12 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 
 import java.net.URI;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -18,30 +20,6 @@ import java.util.stream.Collectors;
  */
 @ControllerAdvice
 public class RestExceptionHandler {
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ProblemDetail> handleValidation(MethodArgumentNotValidException ex,
-                                                          HttpServletRequest req) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "One or more fields are invalid."
-        );
-        problem.setTitle("Validation error");
-        problem.setType(URI.create("about:blank"));
-        problem.setInstance(URI.create(req.getRequestURI()));
-        // Собираем список ошибок из bindingResult
-        var errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
-                .collect(Collectors.toList());
-        problem.setProperty("errors", errors);
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                .body(problem);
-    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ProblemDetail> handleBadRequest(IllegalArgumentException ex,
@@ -69,6 +47,26 @@ public class RestExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problem);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ProblemDetail> handleValidation(MethodArgumentNotValidException ex,
+                                                          HttpServletRequest req) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, "One or more fields are invalid.");
+        problem.setTitle("Validation error");
+        problem.setType(URI.create("about:blank"));
+        problem.setInstance(URI.create(req.getRequestURI()));
+
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map((FieldError e) -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.toList());
+        problem.setProperty("errors", errors);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                 .body(problem);
     }
