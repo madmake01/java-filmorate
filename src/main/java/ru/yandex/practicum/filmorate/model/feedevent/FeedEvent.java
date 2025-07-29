@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model.feedevent;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ public class FeedEvent {
 
     @JsonProperty("eventId")
     private Long id;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Instant timestamp;
     private Long userId;
     private EventType eventType;
