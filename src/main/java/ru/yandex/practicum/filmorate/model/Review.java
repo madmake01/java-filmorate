@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.Objects;
 
 /**
@@ -8,22 +12,26 @@ import java.util.Objects;
 public class Review {
     // Уникальный идентификатор отзыва
     private long reviewId;
-    // Текст отзыва
+    // Текст отзыва (обязателен, не пустой, не более 500 символов)
+    @NotBlank(message = "content: must not be blank")
+    @Size(max = 500, message = "content: size must be between 1 and 500")
     private String content;
-    // Тип отзыва: true - положительный, false - негативный
-    private boolean isPositive;
+    // Тип отзыва: true — положительный, false — негативный (обязательно)
+    @NotNull(message = "isPositive: must not be null")
+    @JsonProperty("isPositive")
+    private Boolean isPositive;
     // Идентификатор пользователя, добавившего отзыв
     private long userId;
     // Идентификатор фильма, к которому привязан отзыв
     private long filmId;
-    // Рейтинг полезности (лайки - дизлайки)
+    // Рейтинг полезности (лайки — дизлайки)
     private int useful;
 
     public Review() {
         // Конструктор по умолчанию
     }
 
-    public Review(long reviewId, String content, boolean isPositive, long userId, long filmId, int useful) {
+    public Review(long reviewId, String content, Boolean isPositive, long userId, long filmId, int useful) {
         this.reviewId = reviewId;
         this.content = content;
         this.isPositive = isPositive;
@@ -48,11 +56,16 @@ public class Review {
         this.content = content;
     }
 
-    public boolean isPositive() {
+    /**
+     * Признак отзыва: true — положительный, false — негативный.
+     */
+    @JsonProperty("isPositive")
+    public Boolean isPositive() {
         return isPositive;
     }
 
-    public void setPositive(boolean positive) {
+    @JsonProperty("isPositive")
+    public void setPositive(Boolean positive) {
         isPositive = positive;
     }
 
@@ -90,7 +103,7 @@ public class Review {
         }
         Review review = (Review) o;
         return reviewId == review.reviewId &&
-                isPositive == review.isPositive &&
+                Objects.equals(isPositive, review.isPositive) &&
                 userId == review.userId &&
                 filmId == review.filmId &&
                 useful == review.useful &&

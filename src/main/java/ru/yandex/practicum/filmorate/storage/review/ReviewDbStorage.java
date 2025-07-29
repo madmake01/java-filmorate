@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
@@ -53,29 +54,37 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setLong(4, review.getFilmId());
             return ps;
         }, keyHolder);
-        // Устанавливаем сгенерированный ID и рейтинг useful = 0
-        review.setReviewId(keyHolder.getKey().longValue());
-        review.setUseful(0);
-        return review;
+
+        long generatedId = keyHolder.getKey().longValue();
+        // Возвращаем свежий объект из БД, чтобы в нём были все поля
+        return getReviewById(generatedId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Отзыв не найден после вставки: " + generatedId));
     }
 
     @Override
     public Review updateReview(Review review) {
         String sql = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
-        jdbcTemplate.update(sql,
+        int updated = jdbcTemplate.update(sql,
                 review.getContent(),
                 review.isPositive(),
                 review.getReviewId());
-        // Возвращаем обновлённый объект из БД
+        if (updated == 0) {
+            throw new EntityNotFoundException("Отзыв не найден: " + review.getReviewId());
+        }
         return getReviewById(review.getReviewId())
-                .orElseThrow(() -> new IllegalArgumentException("Review not found: " + review.getReviewId()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Отзыв не найден после обновления: " + review.getReviewId()));
     }
 
     @Override
     public void deleteReview(long reviewId) {
         // Сначала удаляем все лайки/дизлайки, потом сам отзыв
         jdbcTemplate.update("DELETE FROM review_likes WHERE review_id = ?", reviewId);
-        jdbcTemplate.update("DELETE FROM reviews WHERE review_id = ?", reviewId);
+        int removed = jdbcTemplate.update("DELETE FROM reviews WHERE review_id = ?", reviewId);
+        if (removed == 0) {
+            throw new EntityNotFoundException("Отзыв не найден: " + reviewId);
+        }
     }
 
     @Override
@@ -99,40 +108,32 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addLike(long reviewId, long userId) {
-        // Добавляем запись лайка
-        String insert = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, true)";
+        String insert = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, TRUE)";
         jdbcTemplate.update(insert, reviewId, userId);
-        // Увеличиваем рейтинг полезности
         jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
     }
 
     @Override
     public void removeLike(long reviewId, long userId) {
-        // Удаляем запись лайка
-        String delete = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = true";
+        String delete = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = TRUE";
         int removed = jdbcTemplate.update(delete, reviewId, userId);
         if (removed > 0) {
-            // Уменьшаем рейтинг полезности
             jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
         }
     }
 
     @Override
     public void addDislike(long reviewId, long userId) {
-        // Добавляем запись дизлайка
-        String insert = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, false)";
+        String insert = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, FALSE)";
         jdbcTemplate.update(insert, reviewId, userId);
-        // Уменьшаем рейтинг полезности
         jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
     }
 
     @Override
     public void removeDislike(long reviewId, long userId) {
-        // Удаляем запись дизлайка
-        String delete = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = false";
+        String delete = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = FALSE";
         int removed = jdbcTemplate.update(delete, reviewId, userId);
         if (removed > 0) {
-            // Восстанавливаем рейтинг полезности
             jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
         }
     }
