@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -13,54 +14,82 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
+    /**
+     * Добавление нового отзыва.
+     */
     @PostMapping
-    public Review create(@RequestBody Review review) {
+    public Review create(@Valid @RequestBody Review review) {
         return reviewService.addReview(review);
     }
 
+    /**
+     * Обновление существующего отзыва.
+     */
     @PutMapping
-    public Review update(@RequestBody Review review) {
+    public Review update(@Valid @RequestBody Review review) {
         return reviewService.updateReview(review);
     }
 
+    /**
+     * Удаление отзыва по ID.
+     */
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
+    public void delete(@PathVariable Long id) {
         reviewService.deleteReview(id);
     }
 
+    /**
+     * Получение отзыва по ID.
+     */
     @GetMapping("/{id}")
-    public Review getById(@PathVariable long id) {
-        // вместо getReviewById → getReview
+    public Review getById(@PathVariable Long id) {
         return reviewService.getReview(id);
     }
 
+    /**
+     * Список отзывов: по фильму или все.
+     */
     @GetMapping
     public List<Review> listByFilm(
             @RequestParam(required = false) Long filmId,
             @RequestParam(defaultValue = "10") int count
     ) {
-        // вместо getReviewsByFilmId → getReviews
-        long fId = (filmId != null && filmId > 0) ? filmId : 0L;
-        return reviewService.getReviews(fId, count);
+        return reviewService.getReviews(filmId, count);
     }
 
+    /**
+     * Добавление лайка отзыву.
+     * Возвращает обновлённый отзыв.
+     */
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable long id, @PathVariable long userId) {
-        reviewService.addLike(id, userId);
+    public Review addLike(@PathVariable Long id, @PathVariable Long userId) {
+        return reviewService.addLike(id, userId);
     }
 
+    /**
+     * Удаление лайка отзыву.
+     * Возвращает обновлённый отзыв.
+     */
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable long id, @PathVariable long userId) {
-        reviewService.removeLike(id, userId);
+    public Review removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        return reviewService.removeLike(id, userId);
     }
 
+    /**
+     * Добавление дизлайка отзыву.
+     * Возвращает обновлённый отзыв.
+     */
     @PutMapping("/{id}/dislike/{userId}")
-    public void addDislike(@PathVariable long id, @PathVariable long userId) {
-        reviewService.addDislike(id, userId);
+    public Review addDislike(@PathVariable Long id, @PathVariable Long userId) {
+        return reviewService.addDislike(id, userId);
     }
 
+    /**
+     * Удаление дизлайка отзыву.
+     * Возвращает обновлённый отзыв.
+     */
     @DeleteMapping("/{id}/dislike/{userId}")
-    public void removeDislike(@PathVariable long id, @PathVariable long userId) {
-        reviewService.removeDislike(id, userId);
+    public Review removeDislike(@PathVariable Long id, @PathVariable Long userId) {
+        return reviewService.removeDislike(id, userId);
     }
 }

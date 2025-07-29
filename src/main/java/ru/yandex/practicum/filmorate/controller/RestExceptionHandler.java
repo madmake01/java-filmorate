@@ -40,7 +40,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Обработка ошибок @Valid в контроллерах.
+     * Обработка ошибок валидации @Valid в контроллерах.
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -52,12 +52,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(err -> err.getField() + " " + err.getDefaultMessage())
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .collect(Collectors.toList());
 
-        ApiError apiError = new ApiError(statusCode.value(), String.join("; ", errors));
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation error",
+                errors
+        );
         return ResponseEntity
-                .status(statusCode)
+                .status(HttpStatus.BAD_REQUEST)
                 .headers(headers)
                 .body(apiError);
     }
@@ -73,27 +77,31 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request
     ) {
         String message = "Malformed JSON request: " + ex.getMostSpecificCause().getMessage();
-        ApiError apiError = new ApiError(statusCode.value(), message);
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                message
+        );
         return ResponseEntity
-                .status(statusCode)
+                .status(HttpStatus.BAD_REQUEST)
                 .headers(headers)
                 .body(apiError);
     }
 
     /**
-     * Теперь ловим BindException не через @Override, а отдельным @ExceptionHandler.
+     * Обработка BindException (например, при ошибках биндинга форм).
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ApiError> handleBindException(BindException ex) {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(err -> err.getField() + " " + err.getDefaultMessage())
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .collect(Collectors.toList());
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
-                String.join("; ", errors)
+                "Validation error",
+                errors
         );
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

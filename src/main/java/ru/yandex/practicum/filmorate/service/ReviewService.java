@@ -68,38 +68,42 @@ public class ReviewService {
     }
 
     /**
-     * Добавляет лайк отзыву.
+     * Добавляет лайк отзыву и возвращает обновленный отзыв.
      */
-    public void addLike(Long reviewId, Long userId) {
+    public Review addLike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
         reviewStorage.addLike(reviewId, userId);
+        return getReview(reviewId);
     }
 
     /**
-     * Убирает лайк от отзыва.
+     * Убирает лайк от отзыва и возвращает обновленный отзыв.
      */
-    public void removeLike(Long reviewId, Long userId) {
+    public Review removeLike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
         reviewStorage.removeLike(reviewId, userId);
+        return getReview(reviewId);
     }
 
     /**
-     * Добавляет дизлайк отзыву.
+     * Добавляет дизлайк отзыву и возвращает обновленный отзыв.
      */
-    public void addDislike(Long reviewId, Long userId) {
+    public Review addDislike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
         reviewStorage.addDislike(reviewId, userId);
+        return getReview(reviewId);
     }
 
     /**
-     * Убирает дизлайк от отзыва.
+     * Убирает дизлайк от отзыва и возвращает обновленный отзыв.
      */
-    public void removeDislike(Long reviewId, Long userId) {
+    public Review removeDislike(Long reviewId, Long userId) {
         getReview(reviewId);
         userService.getUser(userId);
         reviewStorage.removeDislike(reviewId, userId);
+        return getReview(reviewId);
     }
 }
