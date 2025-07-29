@@ -2,6 +2,9 @@ package ru.yandex.practicum.filmorate.model;
 
 import java.util.List;
 
+/**
+ * Обёртка для ошибок API.
+ */
 public class ApiError {
     private int status;
     private String message;
@@ -21,6 +24,7 @@ public class ApiError {
     public int getStatus() {
         return status;
     }
+
     public void setStatus(int status) {
         this.status = status;
     }
@@ -28,6 +32,7 @@ public class ApiError {
     public String getMessage() {
         return message;
     }
+
     public void setMessage(String message) {
         this.message = message;
     }
@@ -35,6 +40,7 @@ public class ApiError {
     public List<String> getErrors() {
         return errors;
     }
+
     public void setErrors(List<String> errors) {
         this.errors = errors;
     }
