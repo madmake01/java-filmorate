@@ -1,138 +1,66 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import java.util.List;
 
-/**
- * REST-контроллер для работы с отзывами на фильмы.
- */
 @RestController
 @RequestMapping("/reviews")
+@RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @Autowired
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
-    }
-
-    /**
-     * Добавить новый отзыв.
-     * @param review JSON-объект отзыва
-     * @return созданный отзыв с id и рейтингом
-     */
     @PostMapping
-    public Review addReview(@Valid @RequestBody Review review) {
+    public Review create(@RequestBody Review review) {
         return reviewService.addReview(review);
     }
 
-    /**
-     * Обновить существующий отзыв.
-     * @param review JSON-объект отзыва с существующим id
-     * @return обновлённый отзыв
-     */
     @PutMapping
-    public Review updateReview(@Valid @RequestBody Review review) {
+    public Review update(@RequestBody Review review) {
         return reviewService.updateReview(review);
     }
 
-    /**
-     * Удалить отзыв по id.
-     * @param reviewId идентификатор отзыва
-     */
-    @DeleteMapping("/{reviewId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteReview(@PathVariable long reviewId) {
-        reviewService.deleteReview(reviewId);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        reviewService.deleteReview(id);
     }
 
-    /**
-     * Получить отзыв по id.
-     * @param reviewId идентификатор отзыва
-     * @return найденный отзыв
-     */
-    @GetMapping("/{reviewId}")
-    public Review getReviewById(@PathVariable long reviewId) {
-        return reviewService.getReviewById(reviewId);
+    @GetMapping("/{id}")
+    public Review getById(@PathVariable long id) {
+        // вместо getReviewById → getReview
+        return reviewService.getReview(id);
     }
 
-    /**
-     * Получить список отзывов по фильму.
-     * @param filmId (опционально) id фильма; если не указан, вернуть все
-     * @param count максимальное число отзывов (по умолчанию 10)
-     * @return список отзывов, отсортированных по рейтингу полезности
-     */
     @GetMapping
-    public List<Review> getReviews(
-            @RequestParam(value = "filmId", required = false) Long filmId,
-            @RequestParam(value = "count", defaultValue = "10") int count
+    public List<Review> listByFilm(
+            @RequestParam(required = false) Long filmId,
+            @RequestParam(defaultValue = "10") int count
     ) {
-        long id = (filmId == null) ? 0 : filmId;
-        return reviewService.getReviewsByFilmId(id, count);
+        // вместо getReviewsByFilmId → getReviews
+        long fId = (filmId != null && filmId > 0) ? filmId : 0L;
+        return reviewService.getReviews(fId, count);
     }
 
-    /**
-     * Поставить лайк отзыву.
-     * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
-     */
-    @PutMapping("/{reviewId}/like/{userId}")
-    public void addLike(@PathVariable long reviewId, @PathVariable long userId) {
-        reviewService.addLike(reviewId, userId);
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addLike(id, userId);
     }
 
-    /**
-     * Убрать лайк (полезность) у отзыва.
-     * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
-     */
-    @DeleteMapping("/{reviewId}/like/{userId}")
-    public void removeLike(@PathVariable long reviewId, @PathVariable long userId) {
-        reviewService.removeLike(reviewId, userId);
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.removeLike(id, userId);
     }
 
-    /**
-     * Поставить дизлайк отзыву.
-     * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
-     */
-    @PutMapping("/{reviewId}/dislike/{userId}")
-    public void addDislike(@PathVariable long reviewId, @PathVariable long userId) {
-        reviewService.addDislike(reviewId, userId);
+    @PutMapping("/{id}/dislike/{userId}")
+    public void addDislike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addDislike(id, userId);
     }
 
-    /**
-     * Убрать дизлайк у отзыва.
-     * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
-     */
-    @DeleteMapping("/{reviewId}/dislike/{userId}")
-    public void removeDislike(@PathVariable long reviewId, @PathVariable long userId) {
-        reviewService.removeDislike(reviewId, userId);
-    }
-
-    /**
-     * Обработка ошибок валидации и некорректных аргументов.
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public String handleBadRequest(IllegalArgumentException e) {
-        return e.getMessage();
-    }
-
-    /**
-     * Обработка случаев, когда ресурс не найден.
-     */
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(EntityNotFoundException.class)
-    public String handleNotFound(EntityNotFoundException e) {
-        return e.getMessage();
+    @DeleteMapping("/{id}/dislike/{userId}")
+    public void removeDislike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.removeDislike(id, userId);
     }
 }

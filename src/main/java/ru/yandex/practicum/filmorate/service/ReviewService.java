@@ -1,143 +1,105 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Сервис для работы с отзывами.
+ * Сервис для работы с отзывами о фильмах.
  */
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
-    private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
-
-    @Autowired
-    public ReviewService(ReviewStorage reviewStorage,
-                         UserStorage userStorage,
-                         FilmStorage filmStorage) {
-        this.reviewStorage = reviewStorage;
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-    }
+    private final UserService    userService;
+    private final FilmService    filmService;
 
     /**
-     * Добавить новый отзыв.
+     * Добавляет новый отзыв. Проверяет, что пользователь и фильм существуют.
      */
     public Review addReview(Review review) {
-        // Проверка существования пользователя
-        if (userStorage.find(review.getUserId()).isEmpty()) {
-            throw new IllegalArgumentException("Пользователь не найден: " + review.getUserId());
-        }
-        // Проверка существования фильма
-        if (filmStorage.find(review.getFilmId()).isEmpty()) {
-            throw new IllegalArgumentException("Фильм не найден: " + review.getFilmId());
-        }
-        // Проверка текста отзыва
-        if (review.getContent() == null || review.getContent().isBlank()) {
-            throw new IllegalArgumentException("Текст отзыва не может быть пустым");
-        }
+        userService.getUser(review.getUserId());
+        filmService.getFilm(review.getFilmId());
+        review.setUseful(0);
         return reviewStorage.addReview(review);
     }
 
     /**
-     * Обновить существующий отзыв.
+     * Обновляет существующий отзыв. Проверяет, что отзыв, пользователь и фильм существуют.
      */
     public Review updateReview(Review review) {
-        // Проверка, что отзыв существует
-        Optional<Review> existing = reviewStorage.getReviewById(review.getReviewId());
-        if (existing.isEmpty()) {
-            throw new IllegalArgumentException("Отзыв не найден: " + review.getReviewId());
-        }
-        // Проверка текста
-        if (review.getContent() == null || review.getContent().isBlank()) {
-            throw new IllegalArgumentException("Текст отзыва не может быть пустым");
-        }
+        reviewStorage.getReviewById(review.getReviewId())
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден: " + review.getReviewId()));
+        userService.getUser(review.getUserId());
+        filmService.getFilm(review.getFilmId());
         return reviewStorage.updateReview(review);
     }
 
     /**
-     * Удалить отзыв.
+     * Удаляет отзыв по идентификатору.
      */
-    public void deleteReview(long reviewId) {
-        // Проверяем существование
-        if (reviewStorage.getReviewById(reviewId).isEmpty()) {
-            throw new IllegalArgumentException("Отзыв не найден: " + reviewId);
-        }
+    public void deleteReview(Long reviewId) {
+        reviewStorage.getReviewById(reviewId)
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден: " + reviewId));
         reviewStorage.deleteReview(reviewId);
     }
 
     /**
-     * Получить отзыв по ID.
+     * Возвращает отзыв по идентификатору.
      */
-    public Review getReviewById(long reviewId) {
+    public Review getReview(Long reviewId) {
         return reviewStorage.getReviewById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Отзыв не найден: " + reviewId));
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден: " + reviewId));
     }
 
     /**
-     * Получить отзывы по фильму.
+     * Возвращает список отзывов. Если передан filmId > 0, возвращает отзывы по фильму, иначе все.
      */
-    public List<Review> getReviewsByFilmId(long filmId, int count) {
-        // Если filmId = 0, возвращаем все
-        if (filmId == 0) {
-            return reviewStorage.getAllReviews(count);
+    public List<Review> getReviews(Long filmId, int count) {
+        if (filmId != null && filmId > 0) {
+            filmService.getFilm(filmId);
+            return reviewStorage.getReviewsByFilmId(filmId, count);
         }
-        // Проверка существования фильма
-        if (filmStorage.find(filmId).isEmpty()) {
-            throw new IllegalArgumentException("Фильм не найден: " + filmId);
-        }
-        return reviewStorage.getReviewsByFilmId(filmId, count);
+        return reviewStorage.getAllReviews(count);
     }
 
     /**
-     * Добавить лайк отзыву.
+     * Добавляет лайк отзыву.
      */
-    public void addLike(long reviewId, long userId) {
-        // Проверка существования отзыва
-        if (reviewStorage.getReviewById(reviewId).isEmpty()) {
-            throw new IllegalArgumentException("Отзыв не найден: " + reviewId);
-        }
-        // Проверка существования пользователя
-        if (userStorage.find(userId).isEmpty()) {
-            throw new IllegalArgumentException("Пользователь не найден: " + userId);
-        }
+    public void addLike(Long reviewId, Long userId) {
+        getReview(reviewId);
+        userService.getUser(userId);
         reviewStorage.addLike(reviewId, userId);
     }
 
     /**
-     * Удалить лайк.
+     * Убирает лайк от отзыва.
      */
-    public void removeLike(long reviewId, long userId) {
+    public void removeLike(Long reviewId, Long userId) {
+        getReview(reviewId);
+        userService.getUser(userId);
         reviewStorage.removeLike(reviewId, userId);
     }
 
     /**
-     * Добавить дизлайк отзыву.
+     * Добавляет дизлайк отзыву.
      */
-    public void addDislike(long reviewId, long userId) {
-        // Проверка существования отзыва
-        if (reviewStorage.getReviewById(reviewId).isEmpty()) {
-            throw new IllegalArgumentException("Отзыв не найден: " + reviewId);
-        }
-        // Проверка существования пользователя
-        if (userStorage.find(userId).isEmpty()) {
-            throw new IllegalArgumentException("Пользователь не найден: " + userId);
-        }
+    public void addDislike(Long reviewId, Long userId) {
+        getReview(reviewId);
+        userService.getUser(userId);
         reviewStorage.addDislike(reviewId, userId);
     }
 
     /**
-     * Удалить дизлайк.
+     * Убирает дизлайк от отзыва.
      */
-    public void removeDislike(long reviewId, long userId) {
+    public void removeDislike(Long reviewId, Long userId) {
+        getReview(reviewId);
+        userService.getUser(userId);
         reviewStorage.removeDislike(reviewId, userId);
     }
 }
