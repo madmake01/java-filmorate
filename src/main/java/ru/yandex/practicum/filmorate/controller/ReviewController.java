@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
@@ -115,5 +116,23 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}/dislike/{userId}")
     public void removeDislike(@PathVariable long reviewId, @PathVariable long userId) {
         reviewService.removeDislike(reviewId, userId);
+    }
+
+    /**
+     * Обработка ошибок валидации и некорректных аргументов.
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handleBadRequest(IllegalArgumentException e) {
+        return e.getMessage();
+    }
+
+    /**
+     * Обработка случаев, когда ресурс не найден.
+     */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(EntityNotFoundException.class)
+    public String handleNotFound(EntityNotFoundException e) {
+        return e.getMessage();
     }
 }
