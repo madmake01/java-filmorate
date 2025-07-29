@@ -10,14 +10,10 @@ import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Реализация ReviewStorage на основе JdbcTemplate.
- */
 @Repository
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -26,28 +22,24 @@ public class ReviewDbStorage implements ReviewStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // RowMapper для преобразования строки ResultSet в объект Review
-    private final RowMapper<Review> reviewRowMapper = new RowMapper<>() {
-        @Override
-        public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Review review = new Review();
-            review.setReviewId(rs.getLong("review_id"));
-            review.setContent(rs.getString("content"));
-            review.setPositive(rs.getBoolean("is_positive"));
-            review.setUserId(rs.getLong("user_id"));
-            review.setFilmId(rs.getLong("film_id"));
-            review.setUseful(rs.getInt("useful"));
-            return review;
-        }
+    private final RowMapper<Review> reviewRowMapper = (ResultSet rs, int rowNum) -> {
+        Review review = new Review();
+        review.setReviewId(rs.getLong("review_id"));
+        review.setContent(rs.getString("content"));
+        // теперь setter называется setPositive
+        review.setPositive(rs.getBoolean("is_positive"));
+        review.setUserId(rs.getLong("user_id"));
+        review.setFilmId(rs.getLong("film_id"));
+        review.setUseful(rs.getInt("useful"));
+        return review;
     };
 
     @Override
     public Review addReview(Review review) {
-        String sql = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful) " +
-                "VALUES (?, ?, ?, ?, 0)";
+        String sql = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful) VALUES (?, ?, ?, ?, 0)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, review.getContent());
             ps.setBoolean(2, review.isPositive());
             ps.setLong(3, review.getUserId());
@@ -55,11 +47,9 @@ public class ReviewDbStorage implements ReviewStorage {
             return ps;
         }, keyHolder);
 
-        long generatedId = keyHolder.getKey().longValue();
-        // Возвращаем свежий объект из БД, чтобы в нём были все поля
-        return getReviewById(generatedId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Отзыв не найден после вставки: " + generatedId));
+        Long id = keyHolder.getKey().longValue();
+        return getReviewById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден после вставки: " + id));
     }
 
     @Override
@@ -73,13 +63,11 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new EntityNotFoundException("Отзыв не найден: " + review.getReviewId());
         }
         return getReviewById(review.getReviewId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Отзыв не найден после обновления: " + review.getReviewId()));
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден после обновления: " + review.getReviewId()));
     }
 
     @Override
     public void deleteReview(long reviewId) {
-        // Сначала удаляем все лайки/дизлайки, потом сам отзыв
         jdbcTemplate.update("DELETE FROM review_likes WHERE review_id = ?", reviewId);
         int removed = jdbcTemplate.update("DELETE FROM reviews WHERE review_id = ?", reviewId);
         if (removed == 0) {
@@ -89,34 +77,38 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Optional<Review> getReviewById(long reviewId) {
-        String sql = "SELECT * FROM reviews WHERE review_id = ?";
-        List<Review> list = jdbcTemplate.query(sql, reviewRowMapper, reviewId);
+        List<Review> list = jdbcTemplate.query(
+                "SELECT * FROM reviews WHERE review_id = ?",
+                reviewRowMapper, reviewId);
         return list.stream().findFirst();
     }
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId, int count) {
-        String sql = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
-        return jdbcTemplate.query(sql, reviewRowMapper, filmId, count);
+        return jdbcTemplate.query(
+                "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?",
+                reviewRowMapper, filmId, count);
     }
 
     @Override
     public List<Review> getAllReviews(int count) {
-        String sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
-        return jdbcTemplate.query(sql, reviewRowMapper, count);
+        return jdbcTemplate.query(
+                "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?",
+                reviewRowMapper, count);
     }
 
     @Override
     public void addLike(long reviewId, long userId) {
-        String insert = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, TRUE)";
-        jdbcTemplate.update(insert, reviewId, userId);
+        jdbcTemplate.update("INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, TRUE)",
+                reviewId, userId);
         jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
     }
 
     @Override
     public void removeLike(long reviewId, long userId) {
-        String delete = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = TRUE";
-        int removed = jdbcTemplate.update(delete, reviewId, userId);
+        int removed = jdbcTemplate.update(
+                "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = TRUE",
+                reviewId, userId);
         if (removed > 0) {
             jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
         }
@@ -124,15 +116,16 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addDislike(long reviewId, long userId) {
-        String insert = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, FALSE)";
-        jdbcTemplate.update(insert, reviewId, userId);
+        jdbcTemplate.update("INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, FALSE)",
+                reviewId, userId);
         jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
     }
 
     @Override
     public void removeDislike(long reviewId, long userId) {
-        String delete = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = FALSE";
-        int removed = jdbcTemplate.update(delete, reviewId, userId);
+        int removed = jdbcTemplate.update(
+                "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = FALSE",
+                reviewId, userId);
         if (removed > 0) {
             jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
         }
