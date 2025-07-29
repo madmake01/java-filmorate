@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
@@ -26,7 +29,7 @@ public class ReviewController {
      * @return созданный отзыв с id и рейтингом
      */
     @PostMapping
-    public Review addReview(@RequestBody Review review) {
+    public Review addReview(@Valid @RequestBody Review review) {
         return reviewService.addReview(review);
     }
 
@@ -36,7 +39,7 @@ public class ReviewController {
      * @return обновлённый отзыв
      */
     @PutMapping
-    public Review updateReview(@RequestBody Review review) {
+    public Review updateReview(@Valid @RequestBody Review review) {
         return reviewService.updateReview(review);
     }
 
@@ -44,8 +47,9 @@ public class ReviewController {
      * Удалить отзыв по id.
      * @param reviewId идентификатор отзыва
      */
-    @DeleteMapping("/{id}")
-    public void deleteReview(@PathVariable("id") long reviewId) {
+    @DeleteMapping("/{reviewId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteReview(@PathVariable long reviewId) {
         reviewService.deleteReview(reviewId);
     }
 
@@ -54,8 +58,8 @@ public class ReviewController {
      * @param reviewId идентификатор отзыва
      * @return найденный отзыв
      */
-    @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable("id") long reviewId) {
+    @GetMapping("/{reviewId}")
+    public Review getReviewById(@PathVariable long reviewId) {
         return reviewService.getReviewById(reviewId);
     }
 
@@ -79,11 +83,8 @@ public class ReviewController {
      * @param reviewId идентификатор отзыва
      * @param userId идентификатор пользователя
      */
-    @PutMapping("/{id}/like/{userId}")
-    public void addLike(
-            @PathVariable("id") long reviewId,
-            @PathVariable long userId
-    ) {
+    @PutMapping("/{reviewId}/like/{userId}")
+    public void addLike(@PathVariable long reviewId, @PathVariable long userId) {
         reviewService.addLike(reviewId, userId);
     }
 
@@ -92,11 +93,8 @@ public class ReviewController {
      * @param reviewId идентификатор отзыва
      * @param userId идентификатор пользователя
      */
-    @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(
-            @PathVariable("id") long reviewId,
-            @PathVariable long userId
-    ) {
+    @DeleteMapping("/{reviewId}/like/{userId}")
+    public void removeLike(@PathVariable long reviewId, @PathVariable long userId) {
         reviewService.removeLike(reviewId, userId);
     }
 
@@ -105,11 +103,8 @@ public class ReviewController {
      * @param reviewId идентификатор отзыва
      * @param userId идентификатор пользователя
      */
-    @PutMapping("/{id}/dislike/{userId}")
-    public void addDislike(
-            @PathVariable("id") long reviewId,
-            @PathVariable long userId
-    ) {
+    @PutMapping("/{reviewId}/dislike/{userId}")
+    public void addDislike(@PathVariable long reviewId, @PathVariable long userId) {
         reviewService.addDislike(reviewId, userId);
     }
 
@@ -118,11 +113,8 @@ public class ReviewController {
      * @param reviewId идентификатор отзыва
      * @param userId идентификатор пользователя
      */
-    @DeleteMapping("/{id}/dislike/{userId}")
-    public void removeDislike(
-            @PathVariable("id") long reviewId,
-            @PathVariable long userId
-    ) {
+    @DeleteMapping("/{reviewId}/dislike/{userId}")
+    public void removeDislike(@PathVariable long reviewId, @PathVariable long userId) {
         reviewService.removeDislike(reviewId, userId);
     }
 }
