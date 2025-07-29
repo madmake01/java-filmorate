@@ -52,8 +52,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
         long id = keyHolder.getKey().longValue();
         return getReviewById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Отзыв не найден после вставки: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден после вставки: " + id));
     }
 
     @Override
@@ -67,8 +66,7 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new EntityNotFoundException("Отзыв не найден: " + review.getReviewId());
         }
         return getReviewById(review.getReviewId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Отзыв не найден после обновления: " + review.getReviewId()));
+                .orElseThrow(() -> new EntityNotFoundException("Отзыв не найден после обновления: " + review.getReviewId()));
     }
 
     @Override
@@ -102,6 +100,14 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addLike(long reviewId, long userId) {
+        // если юзер ранее дизлайкал — убираем дизлайк и возвращаем +1
+        int removedDislike = jdbcTemplate.update(
+                "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = FALSE",
+                reviewId, userId);
+        if (removedDislike > 0) {
+            jdbcTemplate.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = ?", reviewId);
+        }
+        // ставим новый лайк
         jdbcTemplate.update(
                 "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, TRUE)",
                 reviewId, userId);
@@ -120,6 +126,14 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addDislike(long reviewId, long userId) {
+        // если юзер ранее лайкал — убираем лайк и возвращаем -1
+        int removedLike = jdbcTemplate.update(
+                "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = TRUE",
+                reviewId, userId);
+        if (removedLike > 0) {
+            jdbcTemplate.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = ?", reviewId);
+        }
+        // ставим новый дизлайк
         jdbcTemplate.update(
                 "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, FALSE)",
                 reviewId, userId);
