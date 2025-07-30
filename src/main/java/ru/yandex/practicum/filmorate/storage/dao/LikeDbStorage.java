@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,10 +14,14 @@ import java.util.List;
 
 @Primary
 @Repository
-@RequiredArgsConstructor
 public class LikeDbStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Film> filmRowMapper;
+
+    public LikeDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("filmRowMapper") RowMapper<Film> filmRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.filmRowMapper = filmRowMapper;
+    }
 
     @Override
     public void addLike(Like like) {
