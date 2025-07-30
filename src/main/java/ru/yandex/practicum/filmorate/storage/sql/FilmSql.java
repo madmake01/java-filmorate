@@ -52,8 +52,8 @@ public final class FilmSql {
              FROM film_likes fl1
              JOIN film_likes fl2 ON fl1.film_id = fl2.film_id
              JOIN films f ON fl1.film_id = f.film_id
-             JOIN film_genres fg ON f.film_id = fg.film_id
-             JOIN genres g ON fg.genre_id = g.genre_id
+             LEFT JOIN film_genres fg ON f.film_id = fg.film_id
+             LEFT JOIN genres g ON fg.genre_id = g.genre_id
              JOIN ratings r ON f.rating_id = r.rating_id
              JOIN (
                  SELECT film_id, COUNT(user_id) AS like_count
