@@ -12,6 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -39,6 +40,7 @@ class FilmValidationTest {
         film.setName("Inception");
         film.setDescription("A dream within a dream");
         film.setReleaseDate(LocalDate.of(2010, 7, 16));
+        film.setRating(new Rating(1L, "G"));
         film.setDuration(148);
     }
 
