@@ -29,7 +29,7 @@ public class DirectorService {
     public Director getDirectorById(long id) {
         return directorDbStorage.getDirectorById(id)
                 .orElseThrow(() ->
-                        new EntityNotFoundException(String.format("Пользователь с указанным id - %d не найден", id)));
+                        new EntityNotFoundException(String.format("Режиссёр с указанным id - %d не найден", id)));
     }
 
     public Collection<Director> getListDirectors() {

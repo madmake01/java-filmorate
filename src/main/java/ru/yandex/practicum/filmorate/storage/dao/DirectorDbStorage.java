@@ -51,7 +51,7 @@ public class DirectorDbStorage implements DirectorStorage {
                 director.getId());
         if (numberOfEntries == 0)
             throw new EntityNotFoundException(
-                    String.format("Пользователь с указанным id - %d не найден", director.getId()));
+                    String.format("Режиссёр с указанным id - %d не найден", director.getId()));
 
         return director;
     }

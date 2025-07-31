@@ -86,7 +86,7 @@ public class FilmDbStorage implements FilmStorage {
         final String queryToSortByYear = FilmSql.BASE_FILM_SELECT + " " +
                 """
                 WHERE fd.director_id = ?
-                ORDER BY EXTRACT(YEAR FROM  f.release_date) DESC
+                ORDER BY EXTRACT(YEAR FROM  f.release_date) ASC
                 """;
         // Copy-paste запроса из класса FilmSql поле BASE_FILM_SELECT.
         // Как можно по другому вставить функцию COUNT(fl.user_id), чтобы это было безопасно?

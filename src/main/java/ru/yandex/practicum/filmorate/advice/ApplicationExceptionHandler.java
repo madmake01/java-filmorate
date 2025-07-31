@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 
+import java.net.URI;
+
 @RestControllerAdvice
 public class ApplicationExceptionHandler {
 
@@ -30,7 +32,9 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleEntityNotFound() {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problem.setType(URI.create("error"));
         problem.setTitle("Requested entity not found");
+        problem.setProperty("error", HttpStatus.NOT_FOUND);
         return problem;
     }
 
