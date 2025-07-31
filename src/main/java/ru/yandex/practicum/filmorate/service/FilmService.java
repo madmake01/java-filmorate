@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmDirectorsDbStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDbStorage;
 
 import java.util.Collection;
@@ -22,6 +21,8 @@ public class FilmService {
     private final FilmGenreDbStorage filmGenreDbStorage;
     private final GenreService genreService;
     private final RatingService ratingService;
+    private final DirectorService directorService;
+    private final FilmDirectorsDbStorage filmDirectorsDbStorage;
 
     public Film getFilm(Long id) {
         return filmStorage.find(id)
@@ -41,6 +42,12 @@ public class FilmService {
         if (genres != null && !genres.isEmpty()) {
             filmGenreDbStorage.saveFilmGenres(savedFilm.getId(), genres);
         }
+
+        List<Director> directors = film.getDirectors();
+        if (genres != null && !genres.isEmpty()) {
+            filmDirectorsDbStorage.createConnectionFilmDirector(savedFilm.getId(), directors);
+        }
+
         return savedFilm;
     }
 
@@ -56,6 +63,14 @@ public class FilmService {
         if (genres != null && !genres.isEmpty()) {
             filmGenreDbStorage.saveFilmGenres(updatedFilm.getId(), genres);
         }
+
+        filmDirectorsDbStorage.removeConnectionFilmDirector(updatedFilm.getId());
+
+        List<Director> directors = film.getDirectors();
+        if (directors != null && !directors.isEmpty()) {
+            filmDirectorsDbStorage.createConnectionFilmDirector(updatedFilm.getId(), directors);
+        }
+
         return updatedFilm;
     }
 
@@ -83,6 +98,25 @@ public class FilmService {
                 throw new EntityNotFoundException("Rating with id %d not found".formatted(film.getRating().getId()));
             }
         }
+
+        Set<Long> idDirectorsFromFilm =
+                film.getDirectors() == null ? Set.of() : film.getDirectors().stream()
+                        .map(Director::getId)
+                        .collect(Collectors.toSet());
+
+        Set<Long> idAllDirectors = directorService.getListDirectors().stream()
+                .map(Director::getId)
+                .collect(Collectors.toSet());
+
+        if (!idAllDirectors.containsAll(idDirectorsFromFilm)) {
+            throw new EntityNotFoundException("One or more directors do not exist.");
+        }
+    }
+
+    public Collection<Film> getListDirectorFilms(long directorId, String sortBy) {
+        directorService.getDirectorById(directorId);
+
+        return filmStorage.getListDirectorFilms(directorId, SortDirectorFilms.getSortByName(sortBy));
     }
 
 }

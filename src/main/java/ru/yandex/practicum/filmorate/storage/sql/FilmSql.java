@@ -15,11 +15,15 @@ public final class FilmSql {
                   f.rating_id     AS rating_id,
                   r.name          AS rating_name,
                   g.genre_id      AS genre_id,
-                  g.name          AS genre_name
+                  g.name          AS genre_name,
+                  d.id            AS director_id,
+                  d.name          AS director_name
                 FROM films f
                 JOIN ratings r ON f.rating_id = r.rating_id
                 LEFT JOIN film_genres fg ON f.film_id = fg.film_id
                 LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                LEFT JOIN films_directors AS fd ON fd.film_id=f.film_id
+                LEFT JOIN directors AS d ON fd.director_id=d.id
             """;
 
     public static final String FIND_FILM_SQL = BASE_FILM_SELECT + " WHERE f.film_id = ?;";
