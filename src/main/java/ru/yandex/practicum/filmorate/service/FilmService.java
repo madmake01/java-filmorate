@@ -44,7 +44,7 @@ public class FilmService {
         }
 
         List<Director> directors = film.getDirectors();
-        if (genres != null && !genres.isEmpty()) {
+        if (directors != null && !directors.isEmpty()) {
             filmDirectorsDbStorage.createConnectionFilmDirector(savedFilm.getId(), directors);
         }
 
