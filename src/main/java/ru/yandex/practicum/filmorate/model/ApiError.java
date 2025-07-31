@@ -18,9 +18,8 @@ public class ApiError {
     public ApiError(int status, String error, List<String> errors) {
         this.status = status;
         this.error = error;
-        this.errors = errors;
     }
-
+  
     public int getStatus() {
         return status;
     }
