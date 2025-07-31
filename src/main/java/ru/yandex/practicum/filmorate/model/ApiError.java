@@ -7,17 +7,17 @@ import java.util.List;
  */
 public class ApiError {
     private int status;
-    private String message;
+    private String error;
     private List<String> errors;
 
-    public ApiError(int status, String message) {
+    public ApiError(int status, String error) {
         this.status = status;
-        this.message = message;
+        this.error = error;
     }
 
-    public ApiError(int status, String message, List<String> errors) {
+    public ApiError(int status, String error, List<String> errors) {
         this.status = status;
-        this.message = message;
+        this.error = error;
         this.errors = errors;
     }
 
@@ -29,12 +29,12 @@ public class ApiError {
         this.status = status;
     }
 
-    public String getMessage() {
-        return message;
+    public String getError() {
+        return error;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setError(String error) {
+        this.error = error;
     }
 
     public List<String> getErrors() {
