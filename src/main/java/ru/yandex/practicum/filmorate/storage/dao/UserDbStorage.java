@@ -9,6 +9,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.sql.FriendshipSql;
+import ru.yandex.practicum.filmorate.storage.sql.LikeSql;
 import ru.yandex.practicum.filmorate.storage.sql.UserSql;
 
 import java.sql.PreparedStatement;
@@ -68,11 +70,30 @@ public class UserDbStorage implements UserStorage {
         return rows > 0 ? Optional.of(user) : Optional.empty();
     }
 
+    @Override
+    public void remove(Long id) {
+        removeFromFilmUsersLikes(id);
+        removeFromFriends(id);
+        removeFromUsers(id);
+    }
+
     private Long requireGeneratedId(KeyHolder keyHolder) {
         Number key = keyHolder.getKey();
         if (key == null) {
             throw new IllegalStateException("Failed to retrieve generated id");
         }
         return key.longValue();
+    }
+
+    private void removeFromFilmUsersLikes(Long id) {
+        jdbcTemplate.update(LikeSql.DELETE_LIKES_USER, id);
+    }
+
+    private void removeFromFriends(Long id) {
+        jdbcTemplate.update(FriendshipSql.DELETE_USER_FRIENDS, id);
+    }
+
+    private void removeFromUsers(Long id) {
+        jdbcTemplate.update(UserSql.DELETE_USER, id);
     }
 }

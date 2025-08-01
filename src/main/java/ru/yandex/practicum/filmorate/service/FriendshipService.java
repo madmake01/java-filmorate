@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -41,8 +42,8 @@ public class FriendshipService {
 
     @Transactional
     public List<User> getFriends(Long ownerId) {
-        userService.getUser(ownerId);
-        return friendshipStorage.findFriends(ownerId);
+        List<User> friends = friendshipStorage.findFriends(ownerId);
+        return friends == null ? Collections.emptyList() : friends;
     }
 
     public List<User> getCommonFriends(Long firstUserId, Long secondUserId) {
@@ -51,4 +52,3 @@ public class FriendshipService {
         return friendshipStorage.findCommonFriends(firstUserId, secondUserId);
     }
 }
-

@@ -77,4 +77,8 @@ public final class FilmSql {
              ORDER BY fl.like_count DESC
             """;
 
+    public static final String DELETE_FILM = """
+            DELETE FROM films WHERE film_id = ?
+            """;
+
 }

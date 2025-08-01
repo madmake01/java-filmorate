@@ -85,4 +85,17 @@ class UserDbStorageTest {
         Optional<User> result = userDbStorage.update(user);
         assertThat(result).isEmpty();
     }
+
+    @Test
+    void remove_shouldDeleteUserAndRelatedData() {
+        User user = makeUser("del@user.com", "deluser", "Delete Me");
+        User saved = userDbStorage.persist(user);
+
+        Long userId = saved.getId();
+
+        userDbStorage.remove(userId);
+
+        Optional<User> deletedUser = userDbStorage.find(userId);
+        assertThat(deletedUser).isEmpty();
+    }
 }

@@ -48,6 +48,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public void remove(Long id) {
+        find(id);
+        films.remove(id);
+    }
+
     private long generateId() {
         return ++id;
     }

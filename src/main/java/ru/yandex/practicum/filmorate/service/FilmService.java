@@ -88,6 +88,11 @@ public class FilmService {
         return filmStorage.getListDirectorFilms(directorId, SortDirectorFilms.getSortByName(sortBy));
     }
 
+    public void remove(Long id) {
+        getFilm(id);
+        filmStorage.remove(id);
+    }
+
     private void validateReferencedEntities(Film film) {
         Set<Long> existingGenreIds = genreService.findAll().stream()
                 .map(Genre::getId)

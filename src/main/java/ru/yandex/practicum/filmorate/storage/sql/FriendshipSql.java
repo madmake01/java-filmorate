@@ -31,4 +31,8 @@ public final class FriendshipSql {
                 JOIN users u ON u.user_id = f.addressee_user_id
                 WHERE f.requester_user_id = ?
             """;
+    public static final String DELETE_USER_FRIENDS = """
+            DELETE FROM friendships
+            WHERE requester_user_id = ?
+            """;
 }

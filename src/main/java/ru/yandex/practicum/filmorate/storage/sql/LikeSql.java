@@ -30,6 +30,14 @@ public final class LikeSql {
                         LIMIT ?
             """;
 
+    public static final String DELETE_LIKES_USER = """
+                DELETE FROM film_likes WHERE user_id = ?
+            """;
+
+    public static final String DELETE_LIKES_FILM = """
+                DELETE FROM film_likes WHERE film_id = ?
+            """;
+
     private LikeSql() {
     }
 }
