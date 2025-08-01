@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -20,12 +21,23 @@ import java.util.Optional;
 
 @Primary
 @Repository
-@RequiredArgsConstructor
+
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final ResultSetExtractor<Film> filmExtractor;
     private final ResultSetExtractor<List<Film>> filmsExtractor;
+    private final RowMapper<Film> filmRowMapper;
+
+    public FilmDbStorage(JdbcTemplate jdbcTemplate,
+                         ResultSetExtractor<Film> filmExtractor,
+                         ResultSetExtractor<List<Film>> filmsExtractor,
+                         @Qualifier("filmRowMapperWithDetails") RowMapper<Film> filmRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.filmExtractor = filmExtractor;
+        this.filmsExtractor = filmsExtractor;
+        this.filmRowMapper = filmRowMapper;
+    }
 
     public Optional<Film> find(Long id) {
         return Optional.ofNullable(
@@ -72,6 +84,11 @@ public class FilmDbStorage implements FilmStorage {
             return Optional.of(film);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<Film> findCommonFilms(Long firstUser, Long secondUser) {
+        return jdbcTemplate.query(FilmSql.FIND_COMMON_FILMS, filmRowMapper, firstUser, secondUser);
     }
 
     private Long requireGeneratedId(KeyHolder keyHolder) {

@@ -6,10 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.Collections;
@@ -34,6 +35,9 @@ class ReviewServiceTest {
 
     @Mock
     private FilmService filmService;
+
+    @Mock
+    private ApplicationEventPublisher publisher;
 
     @InjectMocks
     private ReviewService reviewService;

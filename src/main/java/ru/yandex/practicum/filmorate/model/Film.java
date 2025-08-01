@@ -18,6 +18,7 @@ public class Film {
     private Long id;
     @NotBlank
     private String name;
+    @NotNull
     @Size(max = 200)
     private String description;
     @NotBeforeDate(EARLIEST_ALLOWED_RELEASE_DATE)
@@ -26,6 +27,7 @@ public class Film {
     @Positive
     private Integer duration;
     @JsonProperty("mpa")
+    @NotNull
     @Valid
     private Rating rating;
     @Valid

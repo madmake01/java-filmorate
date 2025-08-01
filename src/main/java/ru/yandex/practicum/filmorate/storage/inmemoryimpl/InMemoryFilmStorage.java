@@ -5,7 +5,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -37,6 +41,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms) {
         return List.of();
+    }
+  
+    @Override
+    public List<Film> findCommonFilms(Long firstUser, Long secondUser) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private long generateId() {
