@@ -25,12 +25,12 @@ class FilmServiceTest {
 
     @BeforeEach
     void setUp() {
-        filmStorage           = mock(FilmStorage.class);
-        filmGenreDbStorage    = mock(FilmGenreDbStorage.class);
-        genreService          = mock(GenreService.class);
-        ratingService         = mock(RatingService.class);
-        directorService       = mock(DirectorService.class);
-        filmDirectorsDbStorage= mock(FilmDirectorsDbStorage.class);
+        filmStorage            = mock(FilmStorage.class);
+        filmGenreDbStorage     = mock(FilmGenreDbStorage.class);
+        genreService           = mock(GenreService.class);
+        ratingService          = mock(RatingService.class);
+        directorService        = mock(DirectorService.class);
+        filmDirectorsDbStorage = mock(FilmDirectorsDbStorage.class);
 
         filmService = new FilmService(
                 filmStorage,
