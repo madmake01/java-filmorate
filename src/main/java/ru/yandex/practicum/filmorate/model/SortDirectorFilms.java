@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Getter;
 
+import org.springframework.util.StringUtils;
+
 @Getter
 public enum SortDirectorFilms {
     LIKES("likes"),
@@ -14,16 +16,14 @@ public enum SortDirectorFilms {
     }
 
     public static SortDirectorFilms getSortByName(String sortName) {
-        if (sortName == null || sortName.isEmpty())
-            throw new IllegalStateException("Значение сортировки не долно быть пустым.");
-        SortDirectorFilms sortDirectorFilms = null;
-
-        try {
-            sortDirectorFilms = SortDirectorFilms.valueOf(sortName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(String.format("Сортировки '%s' не существует.", sortName));
+        if (!StringUtils.hasText(sortName)) {
+            throw new IllegalStateException("Значение сортировки не должно быть пустым.");
         }
 
-        return sortDirectorFilms;
+        try {
+            return SortDirectorFilms.valueOf(sortName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Сортировки '%s' не существует.".formatted(sortName));
+        }
     }
 }

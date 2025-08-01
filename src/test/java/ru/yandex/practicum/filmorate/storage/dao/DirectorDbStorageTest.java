@@ -51,7 +51,6 @@ public class DirectorDbStorageTest {
     public void getDirectorById() {
         Director addDirector = directorDbStorage.createDirector(director);
 
-        System.out.println(addDirector);
         Optional<Director> retrievedDirector = directorDbStorage.getDirectorById(addDirector.getId());
 
         assertThat(retrievedDirector)
