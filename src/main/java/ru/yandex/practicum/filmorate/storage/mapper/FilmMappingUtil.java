@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
@@ -39,5 +40,16 @@ public final class FilmMappingUtil {
         genre.setId(genreId);
         genre.setName(rs.getString("genre_name"));
         return genre;
+    }
+
+    public static Director mapDirector(ResultSet rs) throws SQLException {
+        long directorId = rs.getLong("director_id");
+        String directorName = rs.getString("director_name");
+
+        if (directorName == null || directorName.isEmpty()) {
+            return null;
+        }
+
+        return new Director(directorId, directorName);
     }
 }

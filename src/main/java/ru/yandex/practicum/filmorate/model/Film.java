@@ -32,4 +32,6 @@ public class Film {
     private Rating rating;
     @Valid
     private List<Genre> genres;
+
+    private List<Director> directors;
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,6 +15,8 @@ public interface FilmStorage {
     Film persist(Film film);
 
     Optional<Film> update(Film film);
+
+    Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms);
 
     List<Film> findCommonFilms(Long firstUser, Long secondUser);
 }

@@ -19,11 +19,6 @@ import java.util.Optional;
 @Repository
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     // RowMapper для преобразования строки ResultSet в объект Review
     private final RowMapper<Review> reviewRowMapper = (rs, rowNum) -> {
         Review review = new Review();
@@ -35,6 +30,10 @@ public class ReviewDbStorage implements ReviewStorage {
         review.setUseful(rs.getInt("useful"));
         return review;
     };
+
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Review addReview(Review review) {

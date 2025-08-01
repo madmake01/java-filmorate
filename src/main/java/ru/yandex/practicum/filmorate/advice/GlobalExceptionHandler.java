@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.ApiError;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Объединённый обработчик всех исключений проекта.
@@ -28,7 +27,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Точка входа для всех внутренних ошибок Spring MVC.
      */
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(
+    public ResponseEntity<Object> handleExceptionInternal(
             Exception ex,
             Object body,
             HttpHeaders headers,
@@ -46,7 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Валидация @Valid в контроллерах.
      */
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+    public ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatusCode statusCode,
@@ -56,7 +55,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .collect(Collectors.toList());
+                .toList();
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -73,7 +72,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Некорректный JSON в теле запроса.
      */
     @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+    public ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex,
             HttpHeaders headers,
             HttpStatusCode statusCode,
@@ -99,7 +98,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .collect(Collectors.toList());
+                .toList();
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
