@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.recommendations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.UserFilm;
+import ru.yandex.practicum.filmorate.model.Like;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,21 +43,19 @@ public class RecommendationsDbStorage implements RecommendationsStorage {
 
         List<Long> userIdList = new ArrayList<>(userIds);
 
-        // Используем jdbcTemplate.query с RowCallbackHandler или RowMapper
-        List<UserFilm> userFilms = jdbcTemplate.query(
+        List<Like> userFilms = jdbcTemplate.query(
                 sql,
                 userIdList.toArray(),
-                (rs, rowNum) -> new UserFilm(
+                (rs, rowNum) -> new Like(
                         rs.getLong("user_id"),
                         rs.getLong("film_id")
                 )
         );
 
-        // Группируем по user_id
         return userFilms.stream()
                 .collect(Collectors.groupingBy(
-                        UserFilm::getUserId,
-                        Collectors.mapping(UserFilm::getFilmId, Collectors.toList())
+                        Like::userId,
+                        Collectors.mapping(Like::filmId, Collectors.toList())
                 ));
     }
 
