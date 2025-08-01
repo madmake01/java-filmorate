@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.sql.FilmGenreSql;
 import ru.yandex.practicum.filmorate.storage.sql.FilmSql;
-import ru.yandex.practicum.filmorate.storage.sql.GenreSql;
 import ru.yandex.practicum.filmorate.storage.sql.LikeSql;
 
 import java.sql.PreparedStatement;
