@@ -59,6 +59,10 @@ public class FilmService {
         return updatedFilm;
     }
 
+    public List<Film> findCommonFilms(Long userId, Long friendId) {
+        return filmStorage.findCommonFilms(userId, friendId);
+    }
+
     private void validateReferencedEntities(Film film) {
         Set<Long> existingGenreIds = genreService.findAll().stream()
                 .map(Genre::getId)
