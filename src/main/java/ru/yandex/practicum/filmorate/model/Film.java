@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.validation.NotBeforeDate;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Data
 public class Film {
@@ -45,4 +47,7 @@ public class Film {
     private List<Genre> genres;
 
     private List<Director> directors;
+
+    /** Хранит идентификаторы пользователей, поставивших лайк этому фильму */
+    private Set<Long> likedUsers = new HashSet<>();
 }

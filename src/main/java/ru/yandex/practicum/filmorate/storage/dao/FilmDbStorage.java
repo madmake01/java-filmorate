@@ -130,10 +130,9 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> search(String query, List<String> by) {
         boolean searchTitle    = by.contains("title");
         boolean searchDirector = by.contains("director");
-        if (!searchTitle && !searchDirector) {
-            return List.of();
-        }
+        // убрана «молчаливая» отдача пустого списка — проверка валидности 'by' на уровне сервиса
         String pattern = "%" + query.toLowerCase() + "%";
+
         String sql = """
             SELECT
               f.film_id       AS film_id,
@@ -166,11 +165,26 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.film_id
             ORDER BY COUNT(fl.user_id) DESC
             """;
+
         if (searchTitle && searchDirector) {
             return jdbcTemplate.query(sql, filmsExtractor, pattern, pattern);
         } else {
             return jdbcTemplate.query(sql, filmsExtractor, pattern);
         }
+    }
+
+    @Override
+    public void addLike(Long filmId, Long userId) {
+        //  SQL-константа FilmSql.ADD_LIKE_SQL:
+        // "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)"
+        jdbcTemplate.update(FilmSql.ADD_LIKE_SQL, filmId, userId);
+    }
+
+    @Override
+    public void removeLike(Long filmId, Long userId) {
+        //  SQL-константа FilmSql.DELETE_LIKE_SQL:
+        // "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?"
+        jdbcTemplate.update(FilmSql.DELETE_LIKE_SQL, filmId, userId);
     }
 
     private Long requireGeneratedId(org.springframework.jdbc.support.KeyHolder keyHolder) {
