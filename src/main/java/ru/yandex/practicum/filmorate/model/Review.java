@@ -15,28 +15,40 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
-    /** Идентификатор (может быть null до сохранения) */
+    /**
+     * Идентификатор (может быть null до сохранения)
+     */
     @PositiveOrZero(message = "reviewId: must be >= 0")
     private Long reviewId;
 
-    /** Текст отзыва, не пустой */
+    /**
+     * Текст отзыва, не пустой
+     */
     @NotBlank(message = "content: must not be blank")
     private String content;
 
-    /** Положительный ли отзыв (true=положительный; false=негативный) */
+    /**
+     * Положительный ли отзыв (true=положительный; false=негативный)
+     */
     @JsonProperty("isPositive")
     @NotNull(message = "isPositive: must not be null")
     private Boolean positive;
 
-    /** Автор (юзер) */
+    /**
+     * Автор (юзер)
+     */
     @NotNull(message = "userId: must not be null")
     private Long userId;
 
-    /** К какому фильму */
+    /**
+     * К какому фильму
+     */
     @NotNull(message = "filmId: must not be null")
     private Long filmId;
 
-    /** Рейтинг “полезности” (по умолчанию = 0) */
+    /**
+     * Рейтинг “полезности” (по умолчанию = 0)
+     */
     @PositiveOrZero(message = "useful: must be >= 0")
     private Integer useful = 0;
 }

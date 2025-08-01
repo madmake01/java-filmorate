@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Getter;
-
 import org.springframework.util.StringUtils;
 
 @Getter

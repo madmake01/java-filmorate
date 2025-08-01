@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface ReviewStorage {
     /**
      * Добавить новый отзыв.
+     *
      * @param review отзыв без заполненного reviewId и useful
      * @return отзыв с сгенерированным идентификатором и рейтингом useful=0
      */
@@ -18,6 +19,7 @@ public interface ReviewStorage {
 
     /**
      * Обновить существующий отзыв.
+     *
      * @param review отзыв с существующим reviewId
      * @return обновлённый отзыв
      */
@@ -25,12 +27,14 @@ public interface ReviewStorage {
 
     /**
      * Удалить отзыв.
+     *
      * @param reviewId идентификатор отзыва
      */
     void deleteReview(long reviewId);
 
     /**
      * Получить отзыв по идентификатору.
+     *
      * @param reviewId идентификатор отзыва
      * @return Optional с отзывом, если найден
      */
@@ -38,14 +42,16 @@ public interface ReviewStorage {
 
     /**
      * Получить список отзывов по фильму, отсортированных по рейтингу полезности.
+     *
      * @param filmId идентификатор фильма
-     * @param count максимальное число отзывов
+     * @param count  максимальное число отзывов
      * @return список отзывов (может быть пустым)
      */
     List<Review> getReviewsByFilmId(long filmId, int count);
 
     /**
      * Получить список всех отзывов, отсортированных по рейтингу полезности.
+     *
      * @param count максимальное число отзывов
      * @return список отзывов (может быть пустым)
      */
@@ -53,29 +59,33 @@ public interface ReviewStorage {
 
     /**
      * Добавить лайк (полезно) к отзыву от пользователя.
+     *
      * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
+     * @param userId   идентификатор пользователя
      */
     void addLike(long reviewId, long userId);
 
     /**
      * Удалить лайк (полезно) от пользователя.
+     *
      * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
+     * @param userId   идентификатор пользователя
      */
     void removeLike(long reviewId, long userId);
 
     /**
      * Добавить дизлайк (бесполезно) к отзыву от пользователя.
+     *
      * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
+     * @param userId   идентификатор пользователя
      */
     void addDislike(long reviewId, long userId);
 
     /**
      * Удалить дизлайк (бесполезно) от пользователя.
+     *
      * @param reviewId идентификатор отзыва
-     * @param userId идентификатор пользователя
+     * @param userId   идентификатор пользователя
      */
     void removeDislike(long reviewId, long userId);
 }

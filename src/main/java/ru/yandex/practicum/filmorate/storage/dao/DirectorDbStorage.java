@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
@@ -49,9 +48,10 @@ public class DirectorDbStorage implements DirectorStorage {
         int numberOfEntries = jdbc.update(queryToUpdate,
                 director.getName(),
                 director.getId());
-        if (numberOfEntries == 0)
+        if (numberOfEntries == 0) {
             throw new EntityNotFoundException(
                     String.format("Режиссёр с указанным id - %d не найден", director.getId()));
+        }
 
         return director;
     }

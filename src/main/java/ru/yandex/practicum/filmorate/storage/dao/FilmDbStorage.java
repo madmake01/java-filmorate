@@ -91,48 +91,40 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(FilmSql.FIND_COMMON_FILMS, filmRowMapper, firstUser, secondUser);
     }
 
-    private Long requireGeneratedId(KeyHolder keyHolder) {
-        Number key = keyHolder.getKey();
-        if (key == null) {
-            throw new IllegalStateException("Failed to retrieve generated id");
-        }
-        return key.longValue();
-    }
-
     public Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms) {
         final String queryToSortByYear = FilmSql.BASE_FILM_SELECT + " " +
                 """
-                WHERE fd.director_id = ?
-                ORDER BY EXTRACT(YEAR FROM  f.release_date) ASC
-                """;
+                        WHERE fd.director_id = ?
+                        ORDER BY EXTRACT(YEAR FROM  f.release_date) ASC
+                        """;
         // Copy-paste запроса из класса FilmSql поле BASE_FILM_SELECT.
         // Как можно по другому вставить функцию COUNT(fl.user_id), чтобы это было безопасно?
         final String queryToSortByLikes =
                 """
-                  SELECT
-                  f.film_id       AS film_id,
-                  f.name          AS film_name,
-                  f.description   AS film_description,
-                  f.release_date  AS film_release_date,
-                  f.duration      AS film_duration,
-                  f.rating_id     AS rating_id,
-                  r.name          AS rating_name,
-                  g.genre_id      AS genre_id,
-                  g.name          AS genre_name,
-                  d.id            AS director_id,
-                  d.name          AS director_name,
-                  COUNT(fl.user_id) AS count
-                FROM films f
-                JOIN ratings r ON f.rating_id = r.rating_id
-                LEFT JOIN film_genres fg ON f.film_id = fg.film_id
-                LEFT JOIN genres g ON fg.genre_id = g.genre_id
-                LEFT JOIN films_directors AS fd ON fd.film_id=f.film_id
-                LEFT JOIN directors AS d ON fd.director_id=d.id
-                LEFT JOIN film_likes AS fl ON fl.film_id=f.film_id
-                WHERE fd.director_id = ?
-                GROUP BY f.film_id
-                ORDER BY count DESC
-                """;
+                          SELECT
+                          f.film_id       AS film_id,
+                          f.name          AS film_name,
+                          f.description   AS film_description,
+                          f.release_date  AS film_release_date,
+                          f.duration      AS film_duration,
+                          f.rating_id     AS rating_id,
+                          r.name          AS rating_name,
+                          g.genre_id      AS genre_id,
+                          g.name          AS genre_name,
+                          d.id            AS director_id,
+                          d.name          AS director_name,
+                          COUNT(fl.user_id) AS count
+                        FROM films f
+                        JOIN ratings r ON f.rating_id = r.rating_id
+                        LEFT JOIN film_genres fg ON f.film_id = fg.film_id
+                        LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                        LEFT JOIN films_directors AS fd ON fd.film_id=f.film_id
+                        LEFT JOIN directors AS d ON fd.director_id=d.id
+                        LEFT JOIN film_likes AS fl ON fl.film_id=f.film_id
+                        WHERE fd.director_id = ?
+                        GROUP BY f.film_id
+                        ORDER BY count DESC
+                        """;
 
         switch (sortDirectorFilms) {
             case YEAR -> {
@@ -143,5 +135,13 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
         return List.of();
+    }
+
+    private Long requireGeneratedId(KeyHolder keyHolder) {
+        Number key = keyHolder.getKey();
+        if (key == null) {
+            throw new IllegalStateException("Failed to retrieve generated id");
+        }
+        return key.longValue();
     }
 }

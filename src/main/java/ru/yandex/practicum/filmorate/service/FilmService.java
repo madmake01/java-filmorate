@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDirectorsDbStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDbStorage;
@@ -78,6 +82,12 @@ public class FilmService {
         return filmStorage.findCommonFilms(userId, friendId);
     }
 
+    public Collection<Film> getListDirectorFilms(long directorId, String sortBy) {
+        directorService.getDirectorById(directorId);
+
+        return filmStorage.getListDirectorFilms(directorId, SortDirectorFilms.getSortByName(sortBy));
+    }
+
     private void validateReferencedEntities(Film film) {
         Set<Long> existingGenreIds = genreService.findAll().stream()
                 .map(Genre::getId)
@@ -115,12 +125,6 @@ public class FilmService {
         if (!idAllDirectors.containsAll(idDirectorsFromFilm)) {
             throw new EntityNotFoundException("One or more directors do not exist.");
         }
-    }
-
-    public Collection<Film> getListDirectorFilms(long directorId, String sortBy) {
-        directorService.getDirectorById(directorId);
-
-        return filmStorage.getListDirectorFilms(directorId, SortDirectorFilms.getSortByName(sortBy));
     }
 
 }
