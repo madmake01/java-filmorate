@@ -155,7 +155,7 @@ public class FilmDbStorage implements FilmStorage {
               LEFT JOIN films_directors fd ON fd.film_id = f.film_id
               LEFT JOIN directors d ON fd.director_id = d.id
               LEFT JOIN film_likes fl ON fl.film_id = f.film_id
-            WHERE 
+            WHERE
             """ +
                 (searchTitle && searchDirector
                         ? "(LOWER(f.name) LIKE ? OR LOWER(d.name) LIKE ?)"
