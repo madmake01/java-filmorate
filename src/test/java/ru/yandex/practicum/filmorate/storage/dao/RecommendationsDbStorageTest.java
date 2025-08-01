@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.config.TestJdbcConfig;
 import ru.yandex.practicum.filmorate.storage.recommendations.RecommendationsDbStorage;
 import ru.yandex.practicum.filmorate.storage.sql.LikeSql;
 
-import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,13 +79,14 @@ public class RecommendationsDbStorageTest {
 
     @Test
     void getUsersFilms_returnsCorrectFilms() {
-        Collection<Long> filmsUser1 = storage.getUsersFilms(1L);
-        assertThat(filmsUser1).containsExactlyInAnyOrder(10L, 20L);
+        var result = storage.getUsersFilms(List.of(1L, 2L, 3L));
 
-        Collection<Long> filmsUser2 = storage.getUsersFilms(2L);
-        assertThat(filmsUser2).containsExactly(10L);
+        assertThat(result).containsKey(1L);
+        assertThat(result.get(1L)).containsExactlyInAnyOrder(10L, 20L);
 
-        Collection<Long> filmsUser3 = storage.getUsersFilms(3L);
-        assertThat(filmsUser3).isEmpty();
+        assertThat(result).containsKey(2L);
+        assertThat(result.get(2L)).containsExactly(10L);
+
+        assertThat(result.getOrDefault(3L, List.of())).isEmpty();
     }
 }

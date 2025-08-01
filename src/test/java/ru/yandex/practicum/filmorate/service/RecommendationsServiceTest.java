@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.recommendations.RecommendationsStorage;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Collection;
 import java.util.Set;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,12 +33,14 @@ public class RecommendationsServiceTest {
     @Test
     void getRecommendedFilms_UserNotFound() {
         Long userId = 1L;
-        when(userService.getUser(userId)).thenReturn(null);
+
+        when(userService.getUser(userId)).thenThrow(new EntityNotFoundException("User not found"));
 
         Set<Film> result = recommendationsService.getRecommendedFilms(userId);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+
         verify(userService).getUser(userId);
         verifyNoMoreInteractions(storage, filmService);
     }
@@ -48,17 +52,16 @@ public class RecommendationsServiceTest {
         user.setId(userId);
 
         when(userService.getUser(userId)).thenReturn(user);
-        when(userService.findAll()).thenReturn(Collections.singletonList(user));
-        when(storage.getUsersFilms(userId)).thenReturn(Collections.emptyList());
+        when(storage.getUserFilms(userId)).thenReturn(Collections.emptyList());
 
         Set<Film> result = recommendationsService.getRecommendedFilms(userId);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+
         verify(userService).getUser(userId);
-        verify(userService).findAll();
-        verify(storage).getUsersFilms(userId);
-        verifyNoMoreInteractions(filmService);
+        verify(storage).getUserFilms(userId);
+        verifyNoMoreInteractions(userService, storage, filmService);
     }
 
     @Test
@@ -74,11 +77,14 @@ public class RecommendationsServiceTest {
         when(userService.getUser(userId)).thenReturn(user1);
         when(userService.findAll()).thenReturn(Arrays.asList(user1, user2));
 
-        Collection<Long> user1Films = Arrays.asList(10L, 20L, 30L);
-        Collection<Long> user2Films = Arrays.asList(20L, 30L, 40L, 50L);
+        List<Long> user1Films = Arrays.asList(10L, 20L, 30L);
+        List<Long> user2Films = Arrays.asList(20L, 30L, 40L, 50L);
 
-        when(storage.getUsersFilms(userId)).thenReturn(user1Films);
-        when(storage.getUsersFilms(similarUserId)).thenReturn(user2Films);
+        when(storage.getUserFilms(userId)).thenReturn(user1Films);
+        when(storage.getUsersFilms(Collections.singletonList(similarUserId)))
+                .thenReturn(Map.of(
+                        similarUserId, user2Films
+                ));
 
         Film film40 = new Film();
         film40.setId(40L);
@@ -97,8 +103,8 @@ public class RecommendationsServiceTest {
 
         verify(userService).getUser(userId);
         verify(userService).findAll();
-        verify(storage).getUsersFilms(userId);
-        verify(storage, times(2)).getUsersFilms(similarUserId);
+        verify(storage).getUserFilms(userId);
+        verify(storage).getUsersFilms(Collections.singletonList(similarUserId));
         verify(filmService).getFilm(40L);
         verify(filmService).getFilm(50L);
     }
@@ -106,19 +112,24 @@ public class RecommendationsServiceTest {
     @Test
     void getRecommendedFilms_NoSimilarUsers() {
         Long userId = 1L;
+        Long similarUserId = 2L;
+
         User user1 = new User();
         user1.setId(userId);
         User user2 = new User();
-        user2.setId(2L);
+        user2.setId(similarUserId);
 
         when(userService.getUser(userId)).thenReturn(user1);
         when(userService.findAll()).thenReturn(Arrays.asList(user1, user2));
 
-        Collection<Long> user1Films = Arrays.asList(10L, 20L);
-        Collection<Long> user2Films = Arrays.asList(30L, 40L);
+        List<Long> user1Films = Arrays.asList(10L, 20L);
+        List<Long> user2Films = Arrays.asList(30L, 40L);
 
-        when(storage.getUsersFilms(userId)).thenReturn(user1Films);
-        when(storage.getUsersFilms(2L)).thenReturn(user2Films);
+        when(storage.getUserFilms(userId)).thenReturn(user1Films);
+        when(storage.getUsersFilms(Collections.singletonList(similarUserId)))
+                .thenReturn(Map.of(
+                        similarUserId, user2Films
+                ));
 
         Set<Film> result = recommendationsService.getRecommendedFilms(userId);
 
@@ -127,8 +138,8 @@ public class RecommendationsServiceTest {
 
         verify(userService).getUser(userId);
         verify(userService).findAll();
-        verify(storage).getUsersFilms(userId);
-        verify(storage).getUsersFilms(2L);
+        verify(storage).getUserFilms(userId);
+        verify(storage).getUsersFilms(Collections.singletonList(similarUserId));
         verifyNoMoreInteractions(filmService);
     }
 }
