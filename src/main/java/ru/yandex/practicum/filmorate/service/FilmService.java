@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDirectorsDbStorage;
 import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDbStorage;
+import jakarta.validation.ValidationException;
 
 import java.util.Collection;
 import java.util.List;
@@ -86,6 +87,23 @@ public class FilmService {
         directorService.getDirectorById(directorId);
 
         return filmStorage.getListDirectorFilms(directorId, SortDirectorFilms.getSortByName(sortBy));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Film> search(String query, List<String> by) {
+        if (query == null || query.isBlank()) {
+            throw new ValidationException("Параметр 'query' не должен быть пустым");
+        }
+        if (by == null || by.isEmpty()) {
+            throw new ValidationException("Параметр 'by' должен содержать хотя бы одно значение");
+        }
+        List<String> allowed = List.of("title", "director");
+        for (String field : by) {
+            if (!allowed.contains(field)) {
+                throw new ValidationException("Недопустимое значение в 'by': " + field);
+            }
+        }
+        return filmStorage.search(query, by);
     }
 
     private void validateReferencedEntities(Film film) {

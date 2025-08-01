@@ -48,6 +48,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public List<Film> search(String query, List<String> by) {
+        throw new UnsupportedOperationException("Поиск не поддерживается в InMemoryFilmStorage");
+    }
+
     private long generateId() {
         return ++id;
     }

@@ -14,7 +14,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 import java.util.List;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,5 +57,16 @@ public class FilmController {
             @RequestParam(defaultValue = "likes") String sortBy) {
 
         return filmService.getListDirectorFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by) {
+        List<String> byList = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        return filmService.search(query, byList);
     }
 }
