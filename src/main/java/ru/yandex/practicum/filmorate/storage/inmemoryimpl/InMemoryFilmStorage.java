@@ -42,7 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms) {
         return List.of();
     }
-  
+    
     @Override
     public List<Film> findCommonFilms(Long firstUser, Long secondUser) {
         throw new UnsupportedOperationException("Not supported yet.");
