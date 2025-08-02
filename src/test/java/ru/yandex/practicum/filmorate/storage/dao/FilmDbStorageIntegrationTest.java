@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +22,7 @@ class FilmDbStorageIntegrationTest {
 
     @Autowired
     private FilmStorage filmStorage;
+
 
     @BeforeEach
     void initData() {
@@ -47,9 +47,10 @@ class FilmDbStorageIntegrationTest {
                 "INSERT INTO ratings (rating_id, name) VALUES (1, 'G')"
         );
         jdbcTemplate.update(
-                "INSERT INTO films (film_id, name, description, release_date, duration, rating_id) VALUES (1, 'Крадущийся тигр', 'desc', '2000-01-01', 120, 1),"
-                        + " (2, 'Крадущийся в ночи', 'desc', '2001-01-01', 100, 1),"
-                        + " (3, 'Ничего общего', 'desc', '2002-02-02', 90, 1)"
+                "INSERT INTO films (film_id, name, description, release_date, duration, rating_id) VALUES " +
+                        "(1, 'Крадущийся тигр', 'desc', '2000-01-01', 120, 1), " +
+                        "(2, 'Крадущийся в ночи', 'desc', '2001-01-01', 100, 1), " +
+                        "(3, 'Ничего общего', 'desc', '2002-02-02', 90, 1)"
         );
         jdbcTemplate.update(
                 "INSERT INTO directors (id, name) VALUES (1, 'Аниг Режиссер')"
@@ -58,6 +59,8 @@ class FilmDbStorageIntegrationTest {
                 "INSERT INTO films_directors (film_id, director_id) VALUES (3, 1)"
         );
     }
+
+
     @Test
     void findByTitleLikeIntegration() {
         List<Film> films = filmStorage.findByTitleLike("%крад%");
@@ -68,6 +71,7 @@ class FilmDbStorageIntegrationTest {
             assertTrue(films.get(i - 1).getLikesCount() >= films.get(i).getLikesCount());
         }
     }
+
 
     @Test
     void findByDirectorLikeIntegration() {
