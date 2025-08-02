@@ -34,7 +34,4 @@ public class Film {
     private List<Genre> genres;
 
     private List<Director> directors;
-
-    @JsonProperty("likesCount")
-    private int likesCount;
 }

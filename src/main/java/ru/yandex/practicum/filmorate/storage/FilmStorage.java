@@ -23,4 +23,6 @@ public interface FilmStorage {
     List<Film> findByTitleLike(String pattern);
 
     List<Film> findByDirectorLike(String pattern);
+
+    List<Film> findByBoth(String pattern);
 }

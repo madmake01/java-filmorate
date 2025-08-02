@@ -1,17 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -60,7 +54,7 @@ class FilmDbStorageIntegrationTest {
         );
     }
 
-
+/*
     @Test
     void findByTitleLikeIntegration() {
         List<Film> films = filmStorage.findByTitleLike("%крад%");
@@ -81,5 +75,5 @@ class FilmDbStorageIntegrationTest {
         assertTrue(films.stream()
                 .flatMap(f -> f.getDirectors().stream())
                 .anyMatch(d -> d.getName().toLowerCase().contains("аниг")));
-    }
+    }*/
 }

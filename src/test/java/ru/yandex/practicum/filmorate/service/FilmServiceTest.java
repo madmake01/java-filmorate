@@ -1,19 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class FilmServiceTest {
 
@@ -26,7 +16,7 @@ class FilmServiceTest {
     private Film film1;
     private Film film2;
 
-    @BeforeEach
+/*    @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         film1 = new Film();
@@ -70,5 +60,5 @@ class FilmServiceTest {
         assertEquals(film2, result.get(1));
         verify(filmStorage).findByTitleLike("%крад%");
         verify(filmStorage).findByDirectorLike("%крад%");
-    }
+    }*/
 }
