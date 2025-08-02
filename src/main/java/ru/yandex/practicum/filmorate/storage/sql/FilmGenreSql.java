@@ -13,8 +13,4 @@ public final class FilmGenreSql {
             DELETE FROM film_genres
             WHERE film_id = ?
             """;
-
-    public static final String DELETE_GENRES_FILM = """
-            DELETE FROM film_genres WHERE film_id = ?
-            """;
 }

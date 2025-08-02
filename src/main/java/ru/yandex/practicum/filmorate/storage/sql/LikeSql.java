@@ -14,7 +14,7 @@ public final class LikeSql {
             """;
     public static final String SELECT_TOP_FILMS_BY_LIKES = """
                 SELECT
-                            f.film_id,
+                            f.film_id AS id,
                             f.name,
                             f.description,
                             f.release_date,
@@ -28,14 +28,6 @@ public final class LikeSql {
                         ) fl ON f.film_id = fl.film_id
                         ORDER BY fl.like_count DESC
                         LIMIT ?
-            """;
-
-    public static final String DELETE_LIKES_USER = """
-                DELETE FROM film_likes WHERE user_id = ?
-            """;
-
-    public static final String DELETE_LIKES_FILM = """
-                DELETE FROM film_likes WHERE film_id = ?
             """;
 
     private LikeSql() {

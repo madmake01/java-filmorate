@@ -11,9 +11,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.sql.FilmGenreSql;
 import ru.yandex.practicum.filmorate.storage.sql.FilmSql;
-import ru.yandex.practicum.filmorate.storage.sql.LikeSql;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -141,9 +139,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void remove(Long id) {
-        removeFromFilmUsersLikes(id);
-        removeFromFilmGenre(id);
-        removeFromFilm(id);
+        jdbcTemplate.update(FilmSql.DELETE_FILM, id);
     }
 
     private Long requireGeneratedId(KeyHolder keyHolder) {
@@ -152,17 +148,5 @@ public class FilmDbStorage implements FilmStorage {
             throw new IllegalStateException("Failed to retrieve generated id");
         }
         return key.longValue();
-    }
-
-    private void removeFromFilmUsersLikes(Long id) {
-        jdbcTemplate.update(LikeSql.DELETE_LIKES_FILM, id);
-    }
-
-    private void removeFromFilmGenre(Long id) {
-        jdbcTemplate.update(FilmGenreSql.DELETE_GENRES_FILM, id);
-    }
-
-    private void removeFromFilm(Long id) {
-        jdbcTemplate.update(FilmSql.DELETE_FILM, id);
     }
 }
