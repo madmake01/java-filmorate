@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.stream.Collectors;
 import java.util.Collection;
 import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,5 +58,16 @@ public class FilmController {
             @RequestParam(defaultValue = "likes") String sortBy) {
 
         return filmService.getListDirectorFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title") String by
+    ) {
+        Set<String> criteria = Arrays.stream(by.split(","))
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+        return filmService.search(query, criteria);
     }
 }

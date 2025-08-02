@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Comparator;
 
 @RequiredArgsConstructor
 @Service
@@ -80,6 +82,22 @@ public class FilmService {
 
     public List<Film> findCommonFilms(Long userId, Long friendId) {
         return filmStorage.findCommonFilms(userId, friendId);
+    }
+
+    public List<Film> search(String query, Set<String> by) {
+        Set<Film> result = new HashSet<>();
+        String wildcard = "%" + query.toLowerCase() + "%";
+
+        if (by.contains("title")) {
+            result.addAll(filmStorage.findByTitleLike(wildcard));
+        }
+        if (by.contains("director")) {
+            result.addAll(filmStorage.findByDirectorLike(wildcard));
+        }
+
+        return result.stream()
+                .sorted(Comparator.comparingInt(Film::getLikesCount).reversed())
+                .collect(Collectors.toList());
     }
 
     public Collection<Film> getListDirectorFilms(long directorId, String sortBy) {

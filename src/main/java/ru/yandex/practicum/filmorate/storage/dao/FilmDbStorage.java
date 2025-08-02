@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.sql.FilmSql;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
@@ -21,13 +22,13 @@ import java.util.Optional;
 
 @Primary
 @Repository
-
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final ResultSetExtractor<Film> filmExtractor;
     private final ResultSetExtractor<List<Film>> filmsExtractor;
     private final RowMapper<Film> filmRowMapper;
+    private final RowMapper<Film> filmRowMapperWithLikesCount;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate,
                          ResultSetExtractor<Film> filmExtractor,
@@ -37,6 +38,11 @@ public class FilmDbStorage implements FilmStorage {
         this.filmExtractor = filmExtractor;
         this.filmsExtractor = filmsExtractor;
         this.filmRowMapper = filmRowMapper;
+        this.filmRowMapperWithLikesCount = (ResultSet rs, int rowNum) -> {
+            Film film = this.filmRowMapper.mapRow(rs, rowNum);
+            film.setLikesCount(rs.getInt("likes_count"));
+            return film;
+        };
     }
 
     public Optional<Film> find(Long id) {
@@ -50,9 +56,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Film persist(Film film) {
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(FilmSql.INSERT_FILM, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, film.getName());
@@ -62,15 +66,12 @@ public class FilmDbStorage implements FilmStorage {
             ps.setLong(5, film.getRating().getId());
             return ps;
         }, keyHolder);
-
         film.setId(requireGeneratedId(keyHolder));
-
         return film;
     }
 
     public Optional<Film> update(Film film) {
         Long filmId = film.getId();
-
         int update = jdbcTemplate.update(FilmSql.UPDATE_FILM_SQL,
                 film.getName(),
                 film.getDescription(),
@@ -79,7 +80,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRating().getId(),
                 filmId
         );
-
         if (update > 0) {
             return Optional.of(film);
         }
@@ -97,8 +97,6 @@ public class FilmDbStorage implements FilmStorage {
                         WHERE fd.director_id = ?
                         ORDER BY EXTRACT(YEAR FROM  f.release_date) ASC
                         """;
-        // Copy-paste запроса из класса FilmSql поле BASE_FILM_SELECT.
-        // Как можно по другому вставить функцию COUNT(fl.user_id), чтобы это было безопасно?
         final String queryToSortByLikes =
                 """
                           SELECT
@@ -125,7 +123,6 @@ public class FilmDbStorage implements FilmStorage {
                         GROUP BY f.film_id
                         ORDER BY count DESC
                         """;
-
         switch (sortDirectorFilms) {
             case YEAR -> {
                 return jdbcTemplate.query(queryToSortByYear, filmsExtractor, directorId);
@@ -135,6 +132,32 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
         return List.of();
+    }
+
+    @Override
+    public List<Film> findByTitleLike(String pattern) {
+        String sql = """
+          SELECT f.*, COUNT(l.user_id) AS likes_count
+          FROM films AS f
+               LEFT JOIN likes AS l ON f.film_id = l.film_id
+          WHERE LOWER(f.name) LIKE ?
+          GROUP BY f.film_id
+          """;
+        return jdbcTemplate.query(sql, filmRowMapperWithLikesCount, pattern);
+    }
+
+    @Override
+    public List<Film> findByDirectorLike(String pattern) {
+        String sql = """
+          SELECT f.*, COUNT(l.user_id) AS likes_count
+          FROM films AS f
+               JOIN film_directors fd ON f.film_id = fd.film_id
+               JOIN directors d ON fd.director_id = d.director_id
+               LEFT JOIN likes l ON f.film_id = l.film_id
+          WHERE LOWER(d.name) LIKE ?
+          GROUP BY f.film_id
+          """;
+        return jdbcTemplate.query(sql, filmRowMapperWithLikesCount, pattern);
     }
 
     private Long requireGeneratedId(KeyHolder keyHolder) {

@@ -19,4 +19,8 @@ public interface FilmStorage {
     Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms);
 
     List<Film> findCommonFilms(Long firstUser, Long secondUser);
+
+    List<Film> findByTitleLike(String pattern);
+
+    List<Film> findByDirectorLike(String pattern);
 }

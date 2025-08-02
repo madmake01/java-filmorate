@@ -7,9 +7,11 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -46,6 +48,25 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> findCommonFilms(Long firstUser, Long secondUser) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<Film> findByTitleLike(String pattern) {
+        String sub = pattern.toLowerCase().replace("%", "");
+        return films.values().stream()
+                .filter(f -> f.getName().toLowerCase().contains(sub))
+                .sorted(Comparator.comparingInt(Film::getLikesCount).reversed())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> findByDirectorLike(String pattern) {
+        String sub = pattern.toLowerCase().replace("%", "");
+        return films.values().stream()
+                .filter(f -> f.getDirectors().stream()
+                        .anyMatch(d -> d.getName().toLowerCase().contains(sub)))
+                .sorted(Comparator.comparingInt(Film::getLikesCount).reversed())
+                .collect(Collectors.toList());
     }
 
     private long generateId() {
