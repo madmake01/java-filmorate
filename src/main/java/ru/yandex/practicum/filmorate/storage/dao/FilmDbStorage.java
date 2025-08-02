@@ -137,9 +137,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findByTitleLike(String pattern) {
         String sql = """
-          SELECT f.*, COUNT(l.user_id) AS likes_count
+          SELECT f.*, COUNT(fl.user_id) AS likes_count
           FROM films AS f
-               LEFT JOIN likes AS l ON f.film_id = l.film_id
+               LEFT JOIN film_likes AS fl ON f.film_id = fl.film_id
           WHERE LOWER(f.name) LIKE ?
           GROUP BY f.film_id
           """;
@@ -149,11 +149,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findByDirectorLike(String pattern) {
         String sql = """
-          SELECT f.*, COUNT(l.user_id) AS likes_count
+          SELECT f.*, COUNT(fl.user_id) AS likes_count
           FROM films AS f
-               JOIN film_directors fd ON f.film_id = fd.film_id
-               JOIN directors d ON fd.director_id = d.director_id
-               LEFT JOIN likes l ON f.film_id = l.film_id
+               JOIN films_directors fd ON f.film_id = fd.film_id
+               JOIN directors d ON fd.director_id = d.id
+               LEFT JOIN film_likes AS fl ON f.film_id = fl.film_id
           WHERE LOWER(d.name) LIKE ?
           GROUP BY f.film_id
           """;
