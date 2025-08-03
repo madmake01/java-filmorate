@@ -66,7 +66,7 @@ public class LikeDbStorage implements LikeStorage {
     @Override
     public List<Film> getPopularFilmsWithGenreId(long genreId) {
         final String queryToGetPopularFilmsWithGenreId = LikeSql.BASE_QUERY_TO_GET_POPULAR_FILMS + """
-                WHERE EXTRACT(YEAR FROM  f.release_date) = ?
+                WHERE g.genre_id = ?
                 GROUP BY f.film_id, g.genre_id
                 ORDER BY like_count DESC
                 """;
