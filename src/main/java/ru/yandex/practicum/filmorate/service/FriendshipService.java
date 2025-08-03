@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.event.FriendAddedEvent;
 import ru.yandex.practicum.filmorate.event.FriendRemovedEvent;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 
-import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -43,13 +41,8 @@ public class FriendshipService {
 
     @Transactional
     public List<User> getFriends(Long ownerId) {
-        try {
-            userService.getUser(ownerId);
-            List<User> friends = friendshipStorage.findFriends(ownerId);
-            return friends == null ? Collections.emptyList() : friends;
-        } catch (EntityNotFoundException ex) {
-            throw new EntityNotFoundException("User with id '%d' not found".formatted(ownerId));
-        }
+        userService.getUser(ownerId);
+        return friendshipStorage.findFriends(ownerId);
     }
 
     public List<User> getCommonFriends(Long firstUserId, Long secondUserId) {
