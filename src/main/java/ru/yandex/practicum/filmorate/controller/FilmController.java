@@ -22,23 +22,6 @@ import java.util.List;
 public class FilmController {
     private final FilmService filmService;
 
-    @GetMapping("/{id}")
-    public Film getFilm(@PathVariable Long id) {
-        return filmService.getFilm(id);
-    }
-
-    @GetMapping
-    public Collection<Film> getFilms() {
-        return filmService.findAll();
-    }
-
-    @GetMapping("/common")
-    public List<Film> getCommonLikedFilms(
-            @RequestParam Long userId,
-            @RequestParam Long friendId) {
-        return filmService.findCommonFilms(userId, friendId);
-    }
-
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         return filmService.save(film);
@@ -49,11 +32,28 @@ public class FilmController {
         return filmService.update(film);
     }
 
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        return filmService.getFilm(id);
+    }
+
+    @GetMapping
+    public Collection<Film> getFilms() {
+        return filmService.findAll();
+    }
+
     @GetMapping("/director/{directorId}")
     public Collection<Film> getListDirectorFilms(
             @PathVariable long directorId,
             @RequestParam(defaultValue = "likes") String sortBy) {
 
         return filmService.getListDirectorFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonLikedFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        return filmService.findCommonFilms(userId, friendId);
     }
 }
