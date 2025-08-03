@@ -59,7 +59,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findByBoth(String pattern) {
+    public List<Film> findByDirectorAndTitle(String pattern) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

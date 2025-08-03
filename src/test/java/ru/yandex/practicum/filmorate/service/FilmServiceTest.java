@@ -12,8 +12,11 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FilmServiceTest {
@@ -70,7 +73,7 @@ class FilmServiceTest {
 
     @Test
     void searchByTitleAndDirectorUsesFindByBoth() {
-        when(filmStorage.findByBoth("%крад%"))
+        when(filmStorage.findByDirectorAndTitle("%крад%"))
                 .thenReturn(List.of(film2, film1));
 
         List<Film> result = filmService.search("крад", Set.of("title", "director"));
@@ -79,7 +82,7 @@ class FilmServiceTest {
         assertSame(film2, result.get(0));
         assertSame(film1, result.get(1));
 
-        verify(filmStorage).findByBoth("%крад%");
+        verify(filmStorage).findByDirectorAndTitle("%крад%");
         verifyNoMoreInteractions(filmStorage);
     }
 }

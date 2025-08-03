@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Primary
@@ -88,7 +89,7 @@ public class FilmDbStorage implements FilmStorage {
         final String queryToSortByYear = FilmSql.BASE_FILM_SELECT + " " +
                 """
                         WHERE fd.director_id = ?
-                        ORDER BY EXTRACT(YEAR FROM  f.release_date) ASC
+                        ORDER BY EXTRACT(YEAR FROM  f.release_date)
                         """;
         final String queryToSortByLikes =
                 """
@@ -116,13 +117,10 @@ public class FilmDbStorage implements FilmStorage {
                         GROUP BY f.film_id
                         ORDER BY count DESC
                         """;
-        switch (sortDirectorFilms) {
-            case YEAR -> {
-                return jdbcTemplate.query(queryToSortByYear, filmsExtractor, directorId);
-            }
-            case LIKES -> {
-                return jdbcTemplate.query(queryToSortByLikes, filmsExtractor, directorId);
-            }
+        if (Objects.requireNonNull(sortDirectorFilms) == SortDirectorFilms.YEAR) {
+            return jdbcTemplate.query(queryToSortByYear, filmsExtractor, directorId);
+        } else if (sortDirectorFilms == SortDirectorFilms.LIKES) {
+            return jdbcTemplate.query(queryToSortByLikes, filmsExtractor, directorId);
         }
         return List.of();
     }
@@ -141,7 +139,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findByBoth(String pattern) {
+    public List<Film> findByDirectorAndTitle(String pattern) {
         String where = "(Lower(d.name) LIKE ? OR Lower(f.name) LIKE ?)";
         String sql = String.format(FilmSql.BASE_SORT_QUERY, where);
         return jdbcTemplate.query(sql, filmRowMapper, pattern, pattern);
