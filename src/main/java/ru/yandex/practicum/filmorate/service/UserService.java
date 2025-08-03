@@ -38,7 +38,6 @@ public class UserService {
     }
 
     public void remove(Long id) {
-        getUser(id);
         userStorage.remove(id);
     }
 }

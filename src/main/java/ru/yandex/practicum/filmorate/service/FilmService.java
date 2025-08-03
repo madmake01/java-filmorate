@@ -89,7 +89,6 @@ public class FilmService {
     }
 
     public void remove(Long id) {
-        getFilm(id);
         filmStorage.remove(id);
     }
 
