@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.sql;
 
 public final class LikeSql {
-    public final static String BASE_QUERY_TO_GET_POPULAR_FILMS = """
+    public static final  String BASE_QUERY_TO_GET_POPULAR_FILMS = """
                          SELECT
                           f.film_id       AS film_id,
                           f.name          AS film_name,
