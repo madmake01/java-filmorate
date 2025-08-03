@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Service
@@ -38,23 +38,25 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
-    @Transactional
     public Film save(Film film) {
-        Film savedFilm = filmStorage.persist(film);
-        Film normalizedFilm = normalizeFilmRelations(savedFilm);
-        saveFilmRelations(normalizedFilm);
-        return normalizedFilm;
+        return withIntegrityHandling(() -> {
+            Film saved = filmStorage.persist(film);
+            Film normalized = normalizeFilmRelations(saved);
+            saveFilmRelations(normalized);
+            return normalized;
+        });
     }
 
-    @Transactional
     public Film update(Film film) {
-        Film updatedFilm = filmStorage.update(film)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Film with id '" + film.getId() + "' not found"));
-        Film normalizedFilm = normalizeFilmRelations(updatedFilm);
-        deleteFilmRelations(normalizedFilm);
-        saveFilmRelations(normalizedFilm);
-        return normalizedFilm;
+        return withIntegrityHandling(() -> {
+            Film updated = filmStorage.update(film)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Film with id '" + film.getId() + "' not found"));
+            Film normalized = normalizeFilmRelations(updated);
+            deleteFilmRelations(normalized);
+            saveFilmRelations(normalized);
+            return normalized;
+        });
     }
 
     public List<Film> findCommonFilms(Long userId, Long friendId) {
@@ -80,6 +82,14 @@ public class FilmService {
         return filmStorage.getListDirectorFilms(directorId, sortOption);
     }
 
+    private Film withIntegrityHandling(Supplier<Film> operation) {
+        try {
+            return operation.get();
+        } catch (DataIntegrityViolationException e) {
+            throw new EntityNotFoundException("Related entity not found");
+        }
+    }
+
     private void deleteFilmRelations(Film film) {
         long filmId = film.getId();
         filmGenreDbStorage.deleteFilmGenresByFilmId(filmId);
@@ -89,17 +99,14 @@ public class FilmService {
     private void saveFilmRelations(Film film) {
         long filmId = film.getId();
 
-        try {
-            Optional.ofNullable(film.getGenres())
-                    .filter(genres -> !genres.isEmpty())
-                    .ifPresent(genres -> filmGenreDbStorage.saveFilmGenres(filmId, genres));
+        Optional.ofNullable(film.getGenres())
+                .filter(genres -> !genres.isEmpty())
+                .ifPresent(genres -> filmGenreDbStorage.saveFilmGenres(filmId, genres));
 
-            Optional.ofNullable(film.getDirectors())
-                    .filter(directors -> !directors.isEmpty())
-                    .ifPresent(directors -> filmDirectorsDbStorage.createConnectionFilmDirector(filmId, directors));
-        } catch (DataIntegrityViolationException e) {
-            throw new EntityNotFoundException("Related entity not found");
-        }
+        Optional.ofNullable(film.getDirectors())
+                .filter(directors -> !directors.isEmpty())
+                .ifPresent(directors -> filmDirectorsDbStorage.createConnectionFilmDirector(filmId, directors));
+
     }
 
     private Film normalizeFilmRelations(Film film) {
