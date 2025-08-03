@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -39,8 +41,24 @@ public class FilmRowMapperWithDetails implements RowMapper<Film> {
             } catch (IOException e) {
                 throw new SQLException("Ошибка при парсинге genres JSON", e);
             }
+        } else {
+            film.setGenres(Collections.emptyList());
         }
-
+        String directorsJson = resultSet.getString("directors");
+        if (directorsJson != null && !directorsJson.isBlank()) {
+            try {
+                List<Director> directors = objectMapper.readValue(
+                        directorsJson,
+                        new TypeReference<>() {
+                        }
+                );
+                film.setDirectors(directors);
+            } catch (IOException e) {
+                throw new SQLException("Ошибка при парсинге directors JSON", e);
+            }
+        } else {
+            film.setDirectors(Collections.emptyList());
+        }
         return film;
     }
 }

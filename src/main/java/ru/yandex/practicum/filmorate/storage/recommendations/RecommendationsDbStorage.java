@@ -45,11 +45,11 @@ public class RecommendationsDbStorage implements RecommendationsStorage {
 
         List<Like> userFilms = jdbcTemplate.query(
                 sql,
-                userIdList.toArray(),
                 (rs, rowNum) -> new Like(
                         rs.getLong("user_id"),
                         rs.getLong("film_id")
-                )
+                ),
+                userIdList.toArray()
         );
 
         return userFilms.stream()
