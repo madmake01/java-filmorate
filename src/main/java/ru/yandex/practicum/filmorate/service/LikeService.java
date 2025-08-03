@@ -34,7 +34,7 @@ public class LikeService {
         return likeStorage.findTopFilmsByLikes(amount);
     }
 
-    public List<Film> getPopularFilmsWithCountAndGenreId(int count, long genreId){
+    public List<Film> getPopularFilmsWithCountAndGenreId(int count, long genreId) {
         return likeStorage.getPopularFilmsWithCountAndGenreId(count, genreId);
     }
 
