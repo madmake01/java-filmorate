@@ -129,7 +129,7 @@ public class FilmDbStorage implements FilmStorage {
     public void remove(Long id) {
         jdbcTemplate.update(FilmSql.DELETE_FILM, id);
     }
-      
+
     @Override
     public List<Film> findByTitleLike(String pattern) {
         String where = "Lower(f.name) LIKE ?";
