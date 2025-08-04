@@ -16,6 +16,8 @@ public interface FilmStorage {
 
     Optional<Film> update(Film film);
 
+    void remove(Long id);
+
     Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms);
 
     List<Film> findCommonFilms(Long firstUser, Long secondUser);

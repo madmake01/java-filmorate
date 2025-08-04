@@ -19,4 +19,5 @@ public final class UserSql {
             """;
     public static final String INSERT_USER = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
 
+    public static final String DELETE_USER = "DELETE FROM users WHERE user_id = ?";
 }

@@ -40,4 +40,10 @@ public class InMemoryUserStorage implements UserStorage {
         id++;
         return id;
     }
+
+    @Override
+    public void remove(Long id) {
+        find(id);
+        users.remove(id);
+    }
 }

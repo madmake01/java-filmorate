@@ -125,6 +125,12 @@ public class FilmDbStorage implements FilmStorage {
         return List.of();
     }
 
+    @Override
+    public void remove(Long id) {
+        jdbcTemplate.update(FilmSql.DELETE_FILM, id);
+    }
+
+    @Override
     public List<Film> findByTitleLike(String pattern) {
         String where = "Lower(f.name) LIKE ?";
         String sql = String.format(FilmSql.BASE_SORT_QUERY, where);

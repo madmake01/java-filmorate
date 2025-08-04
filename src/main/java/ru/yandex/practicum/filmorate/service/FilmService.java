@@ -63,6 +63,10 @@ public class FilmService {
         return filmStorage.findCommonFilms(userId, friendId);
     }
 
+    public void remove(Long id) {
+        filmStorage.remove(id);
+    }
+
     public List<Film> search(String query, Set<String> by) {
         String searchPattern = "%" + query.toLowerCase() + "%";
         boolean searchByTitle = by.contains("title");

@@ -49,6 +49,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public void remove(Long id) {
+        find(id);
+        films.remove(id);
+    }
+
+    @Override
     public List<Film> findByTitleLike(String pattern) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

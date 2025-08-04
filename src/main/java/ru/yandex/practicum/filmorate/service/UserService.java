@@ -36,4 +36,8 @@ public class UserService {
         return userStorage.update(user)
                 .orElseThrow(() -> new EntityNotFoundException("User with id '%d' not found".formatted(user.getId())));
     }
+
+    public void remove(Long id) {
+        userStorage.remove(id);
+    }
 }

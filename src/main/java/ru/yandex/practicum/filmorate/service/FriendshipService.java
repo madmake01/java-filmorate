@@ -51,4 +51,3 @@ public class FriendshipService {
         return friendshipStorage.findCommonFriends(firstUserId, secondUserId);
     }
 }
-

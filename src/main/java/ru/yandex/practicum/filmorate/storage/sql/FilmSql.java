@@ -85,6 +85,10 @@ public final class FilmSql {
              ORDER BY fl.like_count DESC
             """;
 
+    public static final String DELETE_FILM = """
+            DELETE FROM films WHERE film_id = ?
+            """;
+
     public static final String BASE_SORT_QUERY = """
             SELECT f.film_id,
                    f.name         AS film_name,

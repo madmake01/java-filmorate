@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS friendships
     requester_user_id bigint NOT NULL,
     addressee_user_id bigint NOT NULL,
     PRIMARY KEY (requester_user_id, addressee_user_id),
-    FOREIGN KEY (requester_user_id) REFERENCES users (user_id),
-    FOREIGN KEY (addressee_user_id) REFERENCES users (user_id),
+    FOREIGN KEY (requester_user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (addressee_user_id) REFERENCES users (user_id) ON DELETE CASCADE,
     CONSTRAINT chk_no_self_friendship CHECK (requester_user_id <> addressee_user_id)
 );
 
@@ -56,8 +56,8 @@ CREATE TABLE IF NOT EXISTS film_likes
     user_id bigint NOT NULL,
     film_id bigint NOT NULL,
     PRIMARY KEY (user_id, film_id),
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
-    FOREIGN KEY (film_id) REFERENCES films (film_id)
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films (film_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS genres
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS film_genres
     genre_id bigint NOT NULL,
     PRIMARY KEY (film_id, genre_id),
     FOREIGN KEY (genre_id) REFERENCES genres (genre_id),
-    FOREIGN KEY (film_id) REFERENCES films (film_id)
+    FOREIGN KEY (film_id) REFERENCES films (film_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS feed_events
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS feed_events
     operation  varchar(10)              NOT NULL,
     entity_id  bigint                   NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
     CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
     CHECK (operation IN ('ADD', 'REMOVE', 'UPDATE'))
 );
@@ -98,8 +98,8 @@ CREATE TABLE IF NOT EXISTS reviews (
     user_id     BIGINT             NOT NULL,
     film_id     BIGINT             NOT NULL,
     useful      INT                NOT NULL DEFAULT 0,  -- рейтинг полезности
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
-    FOREIGN KEY (film_id) REFERENCES films (film_id)
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films (film_id) ON DELETE CASCADE
     );
 
 -- Таблица для учёта лайков/дизлайков к отзывам
@@ -109,5 +109,5 @@ CREATE TABLE IF NOT EXISTS review_likes (
                                             is_like   BOOLEAN  NOT NULL,     -- true=лайк, false=дизлайк
                                             PRIMARY KEY (review_id, user_id, is_like),
     FOREIGN KEY (review_id) REFERENCES reviews (review_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id)   REFERENCES users   (user_id)
+    FOREIGN KEY (user_id)   REFERENCES users   (user_id) ON DELETE CASCADE
     );

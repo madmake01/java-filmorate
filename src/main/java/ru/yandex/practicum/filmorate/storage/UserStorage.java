@@ -13,4 +13,6 @@ public interface UserStorage {
     User persist(User user);
 
     Optional<User> update(User user);
+
+    void remove(Long id);
 }

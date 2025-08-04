@@ -35,6 +35,7 @@ public final class LikeSql {
                 FROM film_likes
                 GROUP BY film_id
             """;
+
     public static final String SELECT_TOP_FILMS_BY_LIKES = BASE_QUERY_TO_GET_POPULAR_FILMS + """
                         GROUP BY f.film_id, g.genre_id
                         ORDER BY like_count DESC

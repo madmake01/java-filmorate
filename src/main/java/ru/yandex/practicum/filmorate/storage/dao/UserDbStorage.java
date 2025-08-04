@@ -68,6 +68,11 @@ public class UserDbStorage implements UserStorage {
         return rows > 0 ? Optional.of(user) : Optional.empty();
     }
 
+    @Override
+    public void remove(Long id) {
+        jdbcTemplate.update(UserSql.DELETE_USER, id);
+    }
+
     private Long requireGeneratedId(KeyHolder keyHolder) {
         Number key = keyHolder.getKey();
         if (key == null) {
