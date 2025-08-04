@@ -88,7 +88,7 @@ class LikeDbStorageTest {
         jdbcTemplate.update("INSERT INTO film_likes (user_id, film_id) VALUES (2, 10)");
         jdbcTemplate.update("INSERT INTO film_likes (user_id, film_id) VALUES (1, 20)");
 
-        List<Film> result = likeDbStorage.findTopFilmsByLikes(10);
+        List<Film> result = likeDbStorage.getPopularFilms(10, null, null);
 
         assertThat(result).hasSize(6);
         assertThat(result.get(0).getId()).isEqualTo(10L); // 2 лайка
@@ -111,7 +111,7 @@ class LikeDbStorageTest {
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (50, 2)");
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (60, 2)");
 
-        List<Film> result = likeDbStorage.getPopularFilmsWithCountAndGenreId(10, 1);
+        List<Film> result = likeDbStorage.getPopularFilms(10, 1L, null);
 
         assertThat(result).hasSize(4);
         assertThat(result.get(0).getId()).isEqualTo(40L); // 3 лайка
@@ -135,7 +135,7 @@ class LikeDbStorageTest {
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (50, 2)");
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (60, 2)");
 
-        List<Film> result = likeDbStorage.getPopularFilmsWithCountAndYear(10, 1999);
+        List<Film> result = likeDbStorage.getPopularFilms(10, null, 1999);
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0).getId()).isEqualTo(40L); // 3 лайка
@@ -155,7 +155,7 @@ class LikeDbStorageTest {
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (50, 2)");
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (60, 2)");
 
-        List<Film> result = likeDbStorage.getPopularFilmsWithGenreId(1);
+        List<Film> result = likeDbStorage.getPopularFilms(10, 1L, null);
         System.out.println(result);
 
         assertThat(result).hasSize(4);
@@ -170,7 +170,7 @@ class LikeDbStorageTest {
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (50, 2)");
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (60, 2)");
 
-        List<Film> result = likeDbStorage.getPopularFilmsWithYear(1999);
+        List<Film> result = likeDbStorage.getPopularFilms(10, null, 1999);
 
         assertThat(result).hasSize(3);
         for (Film film : result) {
@@ -187,7 +187,7 @@ class LikeDbStorageTest {
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (50, 2)");
         jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (60, 2)");
 
-        List<Film> result = likeDbStorage.getPopularFilmsWithGenreIdAndYear(1, 1999);
+        List<Film> result = likeDbStorage.getPopularFilms(10, 1L, 1999);
 
         assertThat(result).hasSize(2);
         for (Film film : result) {

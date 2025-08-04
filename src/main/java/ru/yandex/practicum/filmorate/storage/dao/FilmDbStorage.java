@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Primary
 @Repository
 public class FilmDbStorage implements FilmStorage {
@@ -28,16 +29,6 @@ public class FilmDbStorage implements FilmStorage {
     private final ResultSetExtractor<Film> filmExtractor;
     private final ResultSetExtractor<List<Film>> filmsExtractor;
     private final RowMapper<Film> filmRowMapper;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate,
-                         ResultSetExtractor<Film> filmExtractor,
-                         ResultSetExtractor<List<Film>> filmsExtractor,
-                         @Qualifier("filmRowMapperWithDetails") RowMapper<Film> filmRowMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.filmExtractor = filmExtractor;
-        this.filmsExtractor = filmsExtractor;
-        this.filmRowMapper = filmRowMapper;
-    }
 
     public Optional<Film> find(Long id) {
         return Optional.ofNullable(
