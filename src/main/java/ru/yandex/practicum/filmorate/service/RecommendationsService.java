@@ -7,12 +7,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.recommendations.RecommendationsStorage;
 
-import java.util.Set;
-import java.util.List;
-import java.util.Collections;
 import java.util.Collection;
-import java.util.Map;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +89,7 @@ public class RecommendationsService {
         return userService.findAll().stream()
                 .map(User::getId)
                 .filter(id -> !id.equals(userId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -105,7 +105,7 @@ public class RecommendationsService {
     /**
      * Находит пользователей с максимальным количеством пересечений лайкнутых фильмов с текущим пользователем.
      *
-     * @param userFilms список фильмов текущего пользователя
+     * @param userFilms    список фильмов текущего пользователя
      * @param filmsOfUsers карта пользователей и их фильмов
      * @return множество идентификаторов пользователей с максимальным пересечением
      */
@@ -115,13 +115,17 @@ public class RecommendationsService {
 
         for (Map.Entry<Long, List<Long>> entry : filmsOfUsers.entrySet()) {
             Collection<Long> otherUserFilms = entry.getValue();
-            if (otherUserFilms == null || otherUserFilms.isEmpty()) continue;
+            if (otherUserFilms == null || otherUserFilms.isEmpty()) {
+                continue;
+            }
 
             long matches = otherUserFilms.stream()
                     .filter(userFilms::contains)
                     .count();
 
-            if (matches == 0) continue;
+            if (matches == 0) {
+                continue;
+            }
 
             if (matches > maxMatches) {
                 maxMatches = matches;
@@ -140,7 +144,7 @@ public class RecommendationsService {
      *
      * @param similarUsers множество идентификаторов похожих пользователей
      * @param filmsOfUsers карта пользователей и их фильмов
-     * @param userFilms коллекция фильмов текущего пользователя
+     * @param userFilms    коллекция фильмов текущего пользователя
      * @return множество идентификаторов фильмов для рекомендации
      */
     private Set<Long> recommendedFilmIds(Set<Long> similarUsers,

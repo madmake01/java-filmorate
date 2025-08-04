@@ -33,7 +33,6 @@ public class RecommendationsDbStorageTest {
     private final RecommendationsDbStorage storage;
     private final JdbcTemplate jdbcTemplate;
 
-
     @BeforeEach
     void setup() {
         // Очистим таблицы перед тестом

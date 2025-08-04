@@ -82,6 +82,24 @@ class FilmDbStorageTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void remove_shouldDeleteFilmAndRelatedData() {
+        Film film = TestEntityFactory.createFilm("Film to delete");
+        Film saved = filmDbStorage.persist(film);
+        Long filmId = saved.getId();
+
+        User user = userDbStorage.persist(TestEntityFactory.createUser("User for like"));
+        likeDbStorage.addLike(new Like(user.getId(), filmId));
+
+        Optional<Film> beforeDelete = filmDbStorage.find(filmId);
+        assertThat(beforeDelete).isPresent();
+
+        filmDbStorage.remove(filmId);
+
+        Optional<Film> afterDelete = filmDbStorage.find(filmId);
+        assertThat(afterDelete).isEmpty();
+    }
+
     @Nested
     class CommonFilmsTests {
 
@@ -129,23 +147,5 @@ class FilmDbStorageTest {
             assertThat(result.get(1).getId()).isEqualTo(lessPopular.getId());
         }
 
-    }
-
-    @Test
-    void remove_shouldDeleteFilmAndRelatedData() {
-        Film film = TestEntityFactory.createFilm("Film to delete");
-        Film saved = filmDbStorage.persist(film);
-        Long filmId = saved.getId();
-
-        User user = userDbStorage.persist(TestEntityFactory.createUser("User for like"));
-        likeDbStorage.addLike(new Like(user.getId(), filmId));
-
-        Optional<Film> beforeDelete = filmDbStorage.find(filmId);
-        assertThat(beforeDelete).isPresent();
-
-        filmDbStorage.remove(filmId);
-
-        Optional<Film> afterDelete = filmDbStorage.find(filmId);
-        assertThat(afterDelete).isEmpty();
     }
 }

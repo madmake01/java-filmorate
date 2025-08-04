@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ContextConfiguration(classes = TestJdbcConfig.class)
-public class DirectorDbStorageTest {
+class DirectorDbStorageTest {
     private final DirectorDbStorage directorDbStorage;
     private Director director;
 
@@ -29,7 +29,7 @@ public class DirectorDbStorageTest {
     }
 
     @Test
-    public void createDirector() {
+    void createDirector() {
         Director addDirector = directorDbStorage.createDirector(director);
 
         assertThat(addDirector.getId()).isNotNull();
@@ -38,7 +38,7 @@ public class DirectorDbStorageTest {
     }
 
     @Test
-    public void updateDirector() {
+    void updateDirector() {
         Director addDirector = directorDbStorage.createDirector(director);
         addDirector.setName("Николай");
 
@@ -48,30 +48,31 @@ public class DirectorDbStorageTest {
     }
 
     @Test
-    public void getDirectorById() {
+    void getDirectorById() {
         Director addDirector = directorDbStorage.createDirector(director);
 
         Optional<Director> retrievedDirector = directorDbStorage.getDirectorById(addDirector.getId());
 
         assertThat(retrievedDirector)
                 .isPresent()
-                .hasValueSatisfying(director ->
-                        assertThat(director).isEqualTo(addDirector)
+                .hasValueSatisfying(dir ->
+                        assertThat(dir).isEqualTo(addDirector)
                 );
     }
 
     @Test
-    public void getListDirectors() {
+    void getListDirectors() {
         directorDbStorage.createDirector(director);
 
         assertThat(directorDbStorage.getListDirectors()).hasSize(1);
     }
 
     @Test
-    public void removeDirector() {
+    void removeDirector() {
         Director addDirector = directorDbStorage.createDirector(director);
         directorDbStorage.removeDirector(addDirector.getId());
 
         assertThat(directorDbStorage.getDirectorById(addDirector.getId())).isEmpty();
     }
+
 }
