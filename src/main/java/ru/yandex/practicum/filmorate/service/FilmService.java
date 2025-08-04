@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -38,6 +39,7 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
+    @Transactional
     public Film save(Film film) {
         return withIntegrityHandling(() -> {
             Film saved = filmStorage.persist(film);
@@ -47,6 +49,7 @@ public class FilmService {
         });
     }
 
+    @Transactional
     public Film update(Film film) {
         return withIntegrityHandling(() -> {
             Film updated = filmStorage.update(film)
