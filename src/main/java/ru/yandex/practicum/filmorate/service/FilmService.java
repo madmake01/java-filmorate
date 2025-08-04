@@ -62,7 +62,7 @@ public class FilmService {
     public List<Film> findCommonFilms(Long userId, Long friendId) {
         return filmStorage.findCommonFilms(userId, friendId);
     }
-  
+
     public void remove(Long id) {
         filmStorage.remove(id);
     }
@@ -79,7 +79,7 @@ public class FilmService {
         }
         return filmStorage.findByDirectorAndTitle(searchPattern);
     }
-  
+
     public Collection<Film> getListDirectorFilms(long directorId, String sortBy) {
         directorService.getDirectorById(directorId);
         SortDirectorFilms sortOption = SortDirectorFilms.getSortByName(sortBy);
