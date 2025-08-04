@@ -34,7 +34,30 @@ public class LikeController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = DEFAULT_FILM_LIST_SIZE) int count) {
-        return likeService.findMostLikedFilms(count);
+    public List<Film> getPopularFilms(
+            @Positive @RequestParam(required = false, defaultValue = DEFAULT_FILM_LIST_SIZE) Integer count,
+            @Positive @RequestParam(required = false) Long genreId,
+            @Positive @RequestParam(required = false) Integer year) {
+        if (count != null && genreId != null) {
+            return likeService.getPopularFilmsWithCountAndGenreId(count, genreId);
+        }
+
+        if (count != null && year != null) {
+            return likeService.getPopularFilmsWithCountAndYear(count, year);
+        }
+
+        if (genreId != null && year != null) {
+            return likeService.getPopularFilmsWithGenreIdAndYear(genreId, year);
+        }
+
+        if (genreId != null) {
+            return likeService.getPopularFilmsWithGenreId(genreId);
+        }
+
+        if (year != null) {
+            return likeService.getPopularFilmsWithYear(year);
+        }
+
+        return count != null ? likeService.findMostLikedFilms(count) : List.of();
     }
 }

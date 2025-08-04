@@ -17,11 +17,11 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Primary
 @Repository
-
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -50,9 +50,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Film persist(Film film) {
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(FilmSql.INSERT_FILM, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, film.getName());
@@ -62,15 +60,12 @@ public class FilmDbStorage implements FilmStorage {
             ps.setLong(5, film.getRating().getId());
             return ps;
         }, keyHolder);
-
         film.setId(requireGeneratedId(keyHolder));
-
         return film;
     }
 
     public Optional<Film> update(Film film) {
         Long filmId = film.getId();
-
         int update = jdbcTemplate.update(FilmSql.UPDATE_FILM_SQL,
                 film.getName(),
                 film.getDescription(),
@@ -79,7 +74,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRating().getId(),
                 filmId
         );
-
         if (update > 0) {
             return Optional.of(film);
         }
@@ -95,10 +89,8 @@ public class FilmDbStorage implements FilmStorage {
         final String queryToSortByYear = FilmSql.BASE_FILM_SELECT + " " +
                 """
                         WHERE fd.director_id = ?
-                        ORDER BY EXTRACT(YEAR FROM  f.release_date) ASC
+                        ORDER BY EXTRACT(YEAR FROM  f.release_date)
                         """;
-        // Copy-paste запроса из класса FilmSql поле BASE_FILM_SELECT.
-        // Как можно по другому вставить функцию COUNT(fl.user_id), чтобы это было безопасно?
         final String queryToSortByLikes =
                 """
                           SELECT
@@ -125,14 +117,10 @@ public class FilmDbStorage implements FilmStorage {
                         GROUP BY f.film_id
                         ORDER BY count DESC
                         """;
-
-        switch (sortDirectorFilms) {
-            case YEAR -> {
-                return jdbcTemplate.query(queryToSortByYear, filmsExtractor, directorId);
-            }
-            case LIKES -> {
-                return jdbcTemplate.query(queryToSortByLikes, filmsExtractor, directorId);
-            }
+        if (Objects.requireNonNull(sortDirectorFilms) == SortDirectorFilms.YEAR) {
+            return jdbcTemplate.query(queryToSortByYear, filmsExtractor, directorId);
+        } else if (sortDirectorFilms == SortDirectorFilms.LIKES) {
+            return jdbcTemplate.query(queryToSortByLikes, filmsExtractor, directorId);
         }
         return List.of();
     }
@@ -140,6 +128,27 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void remove(Long id) {
         jdbcTemplate.update(FilmSql.DELETE_FILM, id);
+    }
+      
+    @Override
+    public List<Film> findByTitleLike(String pattern) {
+        String where = "Lower(f.name) LIKE ?";
+        String sql = String.format(FilmSql.BASE_SORT_QUERY, where);
+        return jdbcTemplate.query(sql, filmRowMapper, pattern);
+    }
+
+    @Override
+    public List<Film> findByDirectorLike(String pattern) {
+        String where = "Lower(d.name) LIKE ?";
+        String sql = String.format(FilmSql.BASE_SORT_QUERY, where);
+        return jdbcTemplate.query(sql, filmRowMapper, pattern);
+    }
+
+    @Override
+    public List<Film> findByDirectorAndTitle(String pattern) {
+        String where = "(Lower(d.name) LIKE ? OR Lower(f.name) LIKE ?)";
+        String sql = String.format(FilmSql.BASE_SORT_QUERY, where);
+        return jdbcTemplate.query(sql, filmRowMapper, pattern, pattern);
     }
 
     private Long requireGeneratedId(KeyHolder keyHolder) {

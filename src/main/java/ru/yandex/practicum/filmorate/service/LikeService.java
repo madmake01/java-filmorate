@@ -33,4 +33,24 @@ public class LikeService {
     public List<Film> findMostLikedFilms(int amount) {
         return likeStorage.findTopFilmsByLikes(amount);
     }
+
+    public List<Film> getPopularFilmsWithCountAndGenreId(int count, long genreId) {
+        return likeStorage.getPopularFilmsWithCountAndGenreId(count, genreId);
+    }
+
+    public List<Film> getPopularFilmsWithCountAndYear(int count, int year) {
+        return likeStorage.getPopularFilmsWithCountAndYear(count, year);
+    }
+
+    public List<Film> getPopularFilmsWithGenreId(long genreId) {
+        return likeStorage.getPopularFilmsWithGenreId(genreId);
+    }
+
+    public List<Film> getPopularFilmsWithYear(int year) {
+        return likeStorage.getPopularFilmsWithYear(year);
+    }
+
+    public List<Film> getPopularFilmsWithGenreIdAndYear(long genreId, int year) {
+        return likeStorage.getPopularFilmsWithGenreIdAndYear(genreId, year);
+    }
 }

@@ -30,6 +30,31 @@ public class InMemoryLikeStorage implements LikeStorage {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public List<Film> getPopularFilmsWithCountAndGenreId(int count, long genreId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Film> getPopularFilmsWithCountAndYear(int count, int year) {
+        return List.of();
+    }
+
+    @Override
+    public List<Film> getPopularFilmsWithGenreId(long genreId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Film> getPopularFilmsWithYear(int year) {
+        return List.of();
+    }
+
+    @Override
+    public List<Film> getPopularFilmsWithGenreIdAndYear(long genreId, int year) {
+        return List.of();
+    }
+
     public Map<Long, Long> getLikeCountsByFilmId() {
         return likes.stream()
                 .collect(Collectors.groupingBy(Like::filmId, Collectors.counting()));

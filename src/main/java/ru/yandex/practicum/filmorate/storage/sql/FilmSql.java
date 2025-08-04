@@ -52,12 +52,20 @@ public final class FilmSql {
                      '{ "id": ' || g.genre_id || ', "name": "' || g.name || '" }'
                      ORDER BY g.genre_id
                      SEPARATOR ', '
-                 ) || ']' AS genres
+                 ) || ']' AS genres,
+                   '['
+                       || Group_concat('{ "id": ' || d.id || ', "name": "' || d.name || '" }'
+                                       ORDER BY
+                                       d.id SEPARATOR
+                                       ', ')
+                       || ']'     AS directors
              FROM film_likes fl1
              JOIN film_likes fl2 ON fl1.film_id = fl2.film_id
              JOIN films f ON fl1.film_id = f.film_id
              LEFT JOIN film_genres fg ON f.film_id = fg.film_id
              LEFT JOIN genres g ON fg.genre_id = g.genre_id
+             LEFT JOIN films_directors fd ON f.film_id = fd.film_id
+             LEFT JOIN directors d ON fd.director_id = d.id
              JOIN ratings r ON f.rating_id = r.rating_id
              JOIN (
                  SELECT film_id, COUNT(user_id) AS like_count
@@ -81,4 +89,46 @@ public final class FilmSql {
             DELETE FROM films WHERE film_id = ?
             """;
 
+    public static final String BASE_SORT_QUERY = """
+            SELECT f.film_id,
+                   f.name         AS film_name,
+                   f.description  AS film_description,
+                   f.release_date AS film_release_date,
+                   f.duration     AS film_duration,
+                   f.rating_id,
+                   r.name         AS rating_name,
+                   '['
+                       || Group_concat('{ "id": ' || g.genre_id || ', "name": "' || g.name ||
+                                       '" }'
+                                       ORDER
+                                       BY g.genre_id
+                                       SEPARATOR ', ')
+                       || ']'     AS genres,
+                   '['
+                       || Group_concat('{ "id": ' || d.id || ', "name": "' || d.name || '" }'
+                                       ORDER BY
+                                       d.id SEPARATOR
+                                       ', ')
+                       || ']'     AS directors
+            FROM films f
+                     LEFT JOIN film_genres fg ON f.film_id = fg.film_id
+                     LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                     LEFT JOIN films_directors fd ON f.film_id = fd.film_id
+                     LEFT JOIN directors d ON fd.director_id = d.id
+                     JOIN ratings r ON f.rating_id = r.rating_id
+                     LEFT JOIN (
+                         SELECT film_id, Count(user_id) AS like_count
+                         FROM film_likes
+                         GROUP BY film_id
+                     ) fl ON f.film_id = fl.film_id
+            WHERE %s
+            GROUP BY f.film_id,
+                     f.name,
+                     f.description,
+                     f.release_date,
+                     f.duration,
+                     f.rating_id,
+                     r.name
+            ORDER BY fl.like_count DESC
+            """;
 }
