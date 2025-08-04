@@ -48,26 +48,20 @@ public final class FilmSql {
                 f.duration      AS film_duration,
                 f.rating_id,
                 r.name          AS rating_name,
-            
                 '[' || GROUP_CONCAT(
                         DISTINCT '{ "id": ' || g.genre_id || ', "name": "' || g.name || '" }'
                         ORDER BY g.genre_id SEPARATOR ', '
                      ) || ']'    AS genres,
-            
                 '[' || GROUP_CONCAT(
                         DISTINCT '{ "id": ' || d.id || ', "name": "' || d.name || '" }'
                         ORDER BY d.id SEPARATOR ', '
                      ) || ']'    AS directors,
-            
                 COUNT(DISTINCT fl_all.user_id)      AS like_count
             FROM films f
             JOIN ratings r                ON r.rating_id      = f.rating_id
-            
             JOIN film_likes fl_filter
                        ON fl_filter.film_id = f.film_id
                       AND fl_filter.user_id IN (?, ?)
-            
-            
             LEFT JOIN film_likes fl_all   ON fl_all.film_id   = f.film_id
             
             LEFT JOIN film_genres     fg  ON fg.film_id       = f.film_id
@@ -85,7 +79,6 @@ public final class FilmSql {
                 r.name
             HAVING COUNT(DISTINCT fl_filter.user_id) = 2
             ORDER BY like_count DESC;
-            
             """;
 
     public static final String DELETE_FILM = """
@@ -101,7 +94,6 @@ public final class FilmSql {
                 f.duration     AS film_duration,
                 f.rating_id,
                 r.name         AS rating_name,
-            
                 '['
                   || GROUP_CONCAT(
                        DISTINCT
@@ -110,7 +102,6 @@ public final class FilmSql {
                        SEPARATOR ', '
                      )
                   || ']' AS genres,
-            
                 '['
                   || GROUP_CONCAT(
                        DISTINCT
@@ -119,29 +110,21 @@ public final class FilmSql {
                        SEPARATOR ', '
                      )
                   || ']' AS directors,
-            
                 COUNT(DISTINCT l.user_id) AS like_count
-            
             FROM films AS f
-            
             JOIN ratings AS r
               ON f.rating_id = r.rating_id
-            
             LEFT JOIN film_genres AS fg
               ON f.film_id = fg.film_id
             LEFT JOIN genres AS g
               ON fg.genre_id = g.genre_id
-            
             LEFT JOIN films_directors AS fd
               ON f.film_id = fd.film_id
             LEFT JOIN directors AS d
               ON fd.director_id = d.id
-            
             LEFT JOIN film_likes AS l
               ON f.film_id = l.film_id
-            
             WHERE %s
-            
             GROUP BY
                 f.film_id,
                 f.name,
@@ -150,7 +133,6 @@ public final class FilmSql {
                 f.duration,
                 f.rating_id,
                 r.name
-            
             ORDER BY
                 like_count DESC;
             """;

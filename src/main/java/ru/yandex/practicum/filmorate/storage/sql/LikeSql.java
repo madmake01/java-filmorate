@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.sql;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LikeSql {
     public static final String BASE_QUERY_TO_GET_POPULAR_FILMS = """
             SELECT
@@ -10,7 +14,6 @@ public final class LikeSql {
                 f.duration      AS film_duration,
                 f.rating_id,
                 r.name          AS rating_name,
-            
                 '['
                   || GROUP_CONCAT(
                        DISTINCT
@@ -18,7 +21,6 @@ public final class LikeSql {
                        ORDER BY g.genre_id SEPARATOR ', '
                      )
                   || ']' AS genres,
-            
                 '['
                   || GROUP_CONCAT(
                        DISTINCT
@@ -26,27 +28,16 @@ public final class LikeSql {
                        ORDER BY d.id SEPARATOR ', '
                      )
                   || ']' AS directors,
-            
                 COUNT(DISTINCT l.user_id) AS like_count
-            
             FROM films AS f
             JOIN ratings          AS r  ON r.rating_id = f.rating_id
-            
-            /* основной JOIN для сбора всех жанров */
             LEFT JOIN film_genres    AS fg ON fg.film_id = f.film_id
             LEFT JOIN genres         AS g  ON g.genre_id = fg.genre_id
-            
             LEFT JOIN films_directors AS fd ON fd.film_id = f.film_id
             LEFT JOIN directors      AS d  ON d.id = fd.director_id
-            
             LEFT JOIN film_likes     AS l  ON l.film_id = f.film_id
-            
-            /* сюда подставляем дополнительный JOIN для фильтрации по жанру */
             %s
-            
-            /* тут — только фильтр по году (жанр уже отфильтрован JOIN-ом выше) */
             WHERE %s
-            
             GROUP BY
                 f.film_id,
                 f.name,
@@ -55,7 +46,6 @@ public final class LikeSql {
                 f.duration,
                 f.rating_id,
                 r.name
-            
             ORDER BY like_count DESC
             LIMIT ?
             """;
@@ -66,13 +56,4 @@ public final class LikeSql {
     public static final String DELETE_LIKE = """
                 DELETE FROM film_likes WHERE user_id = ? AND film_id = ?
             """;
-
-    public static final String SELECT_TOP_FILMS_BY_LIKES = BASE_QUERY_TO_GET_POPULAR_FILMS + """
-                        GROUP BY f.film_id, g.genre_id
-                        ORDER BY like_count DESC
-                        LIMIT ?
-            """;
-
-    private LikeSql() {
-    }
 }
