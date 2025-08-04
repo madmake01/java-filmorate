@@ -63,7 +63,6 @@ public final class FilmSql {
                        ON fl_filter.film_id = f.film_id
                       AND fl_filter.user_id IN (?, ?)
             LEFT JOIN film_likes fl_all   ON fl_all.film_id   = f.film_id
-            
             LEFT JOIN film_genres     fg  ON fg.film_id       = f.film_id
             LEFT JOIN genres          g   ON g.genre_id       = fg.genre_id
             LEFT JOIN films_directors fd  ON fd.film_id       = f.film_id
