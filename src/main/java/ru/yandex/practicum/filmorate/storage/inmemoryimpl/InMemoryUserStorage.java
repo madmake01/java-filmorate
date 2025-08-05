@@ -36,6 +36,12 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(users.computeIfPresent(user.getId(), (k, v) -> user));
     }
 
+    @Override
+    public void remove(Long id) {
+        find(id);
+        users.remove(id);
+    }
+
     private long generateId() {
         id++;
         return id;

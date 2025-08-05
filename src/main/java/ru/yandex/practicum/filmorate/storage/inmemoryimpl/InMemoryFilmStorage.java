@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.storage.inmemoryimpl;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SortDirectorFilms;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,6 +36,37 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Optional<Film> update(Film film) {
         return Optional.ofNullable(films.computeIfPresent(film.getId(), (k, v) -> film));
+    }
+
+    @Override
+    public Collection<Film> getListDirectorFilms(long directorId, SortDirectorFilms sortDirectorFilms) {
+        return List.of();
+    }
+
+    @Override
+    public List<Film> findCommonFilms(Long firstUser, Long secondUser) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void remove(Long id) {
+        find(id);
+        films.remove(id);
+    }
+
+    @Override
+    public List<Film> findByTitleLike(String pattern) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<Film> findByDirectorLike(String pattern) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<Film> findByDirectorAndTitle(String pattern) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private long generateId() {

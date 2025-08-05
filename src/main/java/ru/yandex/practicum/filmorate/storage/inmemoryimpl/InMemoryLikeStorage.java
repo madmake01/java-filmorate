@@ -7,9 +7,7 @@ import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class InMemoryLikeStorage implements LikeStorage {
@@ -26,12 +24,8 @@ public class InMemoryLikeStorage implements LikeStorage {
     }
 
     @Override
-    public List<Film> findTopFilmsByLikes(int amount) {
-        throw new UnsupportedOperationException();
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        return List.of();
     }
 
-    public Map<Long, Long> getLikeCountsByFilmId() {
-        return likes.stream()
-                .collect(Collectors.groupingBy(Like::filmId, Collectors.counting()));
-    }
 }

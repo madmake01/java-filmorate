@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.mapper;
 
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -32,6 +33,11 @@ public class FilmsExtractor implements ResultSetExtractor<List<Film>> {
             if (genre != null) {
                 film.getGenres().add(genre);
             }
+
+            Director director = FilmMappingUtil.mapDirector(rs);
+            if (director != null) {
+                film.getDirectors().add(director);
+            }
         }
 
         return new ArrayList<>(films.values());
@@ -41,6 +47,7 @@ public class FilmsExtractor implements ResultSetExtractor<List<Film>> {
         Film film = FilmMappingUtil.mapFilm(rs);
         film.setRating(FilmMappingUtil.mapRating(rs));
         film.setGenres(new ArrayList<>());
+        film.setDirectors(new ArrayList<>());
         return film;
     }
 }

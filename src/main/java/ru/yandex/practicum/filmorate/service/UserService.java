@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -25,7 +26,7 @@ public class UserService {
     }
 
     public User save(User user) {
-        if (user.getName() == null) {
+        if (!StringUtils.hasText(user.getName())) {
             log.debug("User {} name is null, using login instead ", user);
             user.setName(user.getLogin());
         }
@@ -35,5 +36,9 @@ public class UserService {
     public User update(User user) {
         return userStorage.update(user)
                 .orElseThrow(() -> new EntityNotFoundException("User with id '%d' not found".formatted(user.getId())));
+    }
+
+    public void remove(Long id) {
+        userStorage.remove(id);
     }
 }
